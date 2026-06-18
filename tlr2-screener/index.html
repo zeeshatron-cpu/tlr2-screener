@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TLR2 Screener — Lipopeptide Binding Prediction</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2536;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --text2: #8b93a8;
+    --text3: #555f74;
+    --blue: #3b82f6;
+    --blue-bg: rgba(59,130,246,0.12);
+    --green: #22c55e;
+    --green-bg: rgba(34,197,94,0.12);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245,158,11,0.12);
+    --red: #ef4444;
+    --red-bg: rgba(239,68,68,0.12);
+    --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+  .page { max-width: 800px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+  /* NAV */
+  nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3rem; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo-icon { width: 32px; height: 32px; background: var(--blue-bg); border: 0.5px solid var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .nav-logo-name { font-size: 16px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .nav-links { display: flex; gap: 4px; }
+  .nav-link { font-size: 13px; color: var(--text2); padding: 5px 12px; border-radius: var(--radius-sm); text-decoration: none; transition: color 0.15s, background 0.15s; }
+  .nav-link:hover, .nav-link.active { color: var(--text); background: var(--bg3); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 2px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 3px; margin-bottom: 1.5rem; width: fit-content; }
+  .tab { font-size: 13px; padding: 6px 16px; border-radius: 8px; cursor: pointer; color: var(--text2); border: none; background: transparent; transition: all 0.15s; }
+  .tab.active { background: var(--bg3); color: var(--text); border: 0.5px solid var(--border2); }
+
+  /* CARDS */
+  .card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; }
+  .card-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+
+  /* INPUTS */
+  input[type=text], textarea { background: var(--bg3); border: 0.5px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; padding: 8px 12px; width: 100%; outline: none; transition: border 0.15s; }
+  input[type=text]:focus, textarea:focus { border-color: var(--blue); }
+  textarea { font-family: var(--mono); resize: vertical; min-height: 80px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 7px 16px; border-radius: var(--radius-sm); cursor: pointer; border: 0.5px solid var(--border2); background: var(--bg3); color: var(--text); transition: all 0.15s; }
+  .btn:hover { background: var(--bg3); border-color: var(--border2); opacity: 0.85; }
+  .btn-primary { background: var(--blue); color: #fff; border-color: transparent; }
+  .btn-primary:hover { opacity: 0.88; }
+  .btn-sm { font-size: 12px; padding: 4px 10px; }
+
+  /* EXAMPLE PILLS */
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .pill { font-size: 11px; padding: 3px 10px; border: 0.5px solid var(--border2); border-radius: 20px; background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+  .pill:hover { background: var(--bg3); color: var(--text); }
+
+  /* METRIC GRID */
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 1rem; }
+  .metric { background: var(--bg3); border-radius: var(--radius-sm); padding: 0.85rem 1rem; }
+  .metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .metric-val { font-size: 24px; font-weight: 500; color: var(--text); }
+  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* SCORE BARS */
+  .score-block { margin-bottom: 1rem; }
+  .score-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; font-size: 13px; }
+  .score-row span:first-child { color: var(--text2); }
+  .score-row span:last-child { font-weight: 500; }
+  .bar { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; margin-bottom: 12px; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+  /* VERDICT */
+  .verdict { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; }
+  .verdict.high { background: var(--green-bg); color: var(--green); }
+  .verdict.medium { background: var(--amber-bg); color: var(--amber); }
+  .verdict.low { background: var(--red-bg); color: var(--red); }
+
+  /* CONTACTS */
+  .contacts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .contact-badge { font-size: 12px; padding: 3px 10px; border-radius: 20px; border: 0.5px solid var(--border2); color: var(--text3); }
+  .contact-badge.on { background: var(--blue-bg); color: var(--blue); border-color: transparent; }
+
+  /* FLAGS */
+  .flags { display: flex; flex-direction: column; gap: 6px; }
+  .flag { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.5; }
+  .flag.pass { color: var(--green); }
+  .flag.warn { color: var(--amber); }
+  .flag.fail { color: var(--red); }
+  .flag .dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; background: currentColor; }
+
+  /* ANALYSIS */
+  .analysis-text { font-size: 14px; color: var(--text2); line-height: 1.75; }
+
+  /* DROP ZONE */
+  .drop-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 2.5rem 1rem; text-align: center; cursor: pointer; transition: background 0.15s; }
+  .drop-zone:hover { background: var(--bg3); }
+  .drop-zone .dz-icon { font-size: 28px; margin-bottom: 8px; color: var(--text3); }
+  .drop-zone .dz-label { font-size: 14px; color: var(--text2); }
+  .drop-zone .dz-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+  .mono { font-family: var(--mono); font-size: 11px; background: var(--bg3); border: 0.5px solid var(--border); border-radius: 4px; padding: 2px 6px; color: var(--text2); }
+
+  /* PROGRESS */
+  .progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); margin-bottom: 6px; }
+  .progress-track { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width 0.3s; }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1rem; }
+  .stat { background: var(--bg3); border-radius: var(--radius-sm); padding: 0.75rem 1rem; }
+  .stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .stat-val { font-size: 22px; font-weight: 500; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 0.5px solid var(--border); }
+  td { padding: 8px 10px; border-bottom: 0.5px solid var(--border); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg3); }
+
+  /* LANDING */
+  .hero { text-align: center; padding: 3rem 0 2.5rem; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--blue); background: var(--blue-bg); border: 0.5px solid rgba(59,130,246,0.2); padding: 4px 12px; border-radius: 20px; margin-bottom: 1.5rem; }
+  .hero-title { font-size: clamp(28px, 5vw, 42px); font-weight: 600; letter-spacing: -0.02em; color: var(--text); line-height: 1.15; margin-bottom: 1rem; }
+  .hero-title span { color: var(--blue); }
+  .hero-sub { font-size: 16px; color: var(--text2); max-width: 520px; margin: 0 auto 2rem; line-height: 1.7; }
+  .hero-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 3rem 0; }
+  .feature-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+  .feature-icon { font-size: 22px; margin-bottom: 10px; }
+  .feature-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .feature-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 2rem 0; }
+  .pricing-card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
+  .pricing-card.featured { border-color: var(--blue); }
+  .pricing-badge { font-size: 11px; background: var(--blue-bg); color: var(--blue); padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
+  .pricing-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .pricing-price { font-size: 28px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .pricing-price span { font-size: 14px; font-weight: 400; color: var(--text2); }
+  .pricing-desc { font-size: 12px; color: var(--text2); margin-bottom: 1rem; }
+  .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text2); }
+  .pricing-features li::before { content: '✓  '; color: var(--green); font-weight: 600; }
+  .section-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+  .divider { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
+  .paper-link { display: flex; align-items: center; gap: 12px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; text-decoration: none; transition: border-color 0.15s; }
+  .paper-link:hover { border-color: var(--border2); }
+  .paper-link-icon { width: 36px; height: 36px; background: var(--blue-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .paper-link-title { font-size: 13px; font-weight: 500; color: var(--text); }
+  .paper-link-sub { font-size: 12px; color: var(--text2); }
+
+  /* UTIL */
+  .hidden { display: none !important; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .loading { display: flex; align-items: center; gap: 10px; padding: 2rem; justify-content: center; color: var(--text2); font-size: 14px; }
+  .spinner { width: 16px; height: 16px; border: 2px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <nav>
+    <a class="nav-logo" href="#" onclick="showPage('landing')">
+      <div class="nav-logo-icon">🧬</div>
+      <span class="nav-logo-name">TLR2 Screener</span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link active" href="#" id="nav-screener" onclick="showPage('screener')">Screener</a>
+      <a class="nav-link" href="#" id="nav-batch" onclick="showPage('batch')">Batch</a>
+      <a class="nav-link" href="#" id="nav-pricing" onclick="showPage('pricing')">Pricing</a>
+    </div>
+  </nav>
+
+  <!-- LANDING PAGE -->
+  <div id="page-landing" class="hidden">
+    <div class="hero">
+      <div class="hero-badge">🧪 Backed by PDB: 2Z7X crystal structure</div>
+      <div class="hero-title">Predict TLR2 binding<br>in <span>seconds, not days</span></div>
+      <div class="hero-sub">AI-powered lipopeptide screening grounded in TLR1-TLR2 structural data. Stop running AutoDock Vina manually — screen your entire candidate library in one batch.</div>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="showPage('screener')">Try the screener →</button>
+        <button class="btn" onclick="showPage('batch')">Batch upload</button>
+      </div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Instant screening</div>
+        <div class="feature-desc">Get binding scores, pharmacophore match, and drug-likeness flags in under 5 seconds per compound.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">2Z7X-grounded</div>
+        <div class="feature-desc">Pharmacophore model derived from the TLR1-TLR2-Pam3CSK4 crystal structure. Asn294 and Phe349 contacts scored explicitly.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <div class="feature-title">Batch CSV upload</div>
+        <div class="feature-desc">Upload up to 20 compounds at once. Download results as a clean CSV for downstream analysis.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔬</div>
+        <div class="feature-title">Research-grade SAR</div>
+        <div class="feature-desc">Triacylated, diacylated, and non-lipopeptide classes are scored based on published structure-activity relationships.</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="section-title">Scientific basis</div>
+    <a class="paper-link" href="#" onclick="alert('Paper link — add your bioRxiv DOI here once published')">
+      <div class="paper-link-icon">📄</div>
+      <div>
+        <div class="paper-link-title">Rational Design of Pam3Cys-SNFKK: A GIPL-Inspired Lipopeptide Targeting the TLR2 Binding Interface</div>
+        <div class="paper-link-sub">Ahmed Zeeshan · Independent Research · 2025</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- SINGLE SCREENER PAGE -->
+  <div id="page-screener" class="hidden">
+    <div class="card">
+      <div class="card-label">SMILES input</div>
+      <div class="row" style="margin-bottom:8px">
+        <input type="text" id="smiles-input" placeholder="Paste SMILES string here..." style="flex:1" />
+        <button class="btn btn-primary" onclick="runSingle()">Analyze →</button>
+      </div>
+      <div class="pills">
+        <span style="font-size:11px;color:var(--text3);margin-right:2px">Try:</span>
+        <button class="pill" onclick="loadEx('pam3csk4')">Pam3CSK4</button>
+        <button class="pill" onclick="loadEx('snfkk')">Pam3Cys-SNFKK</button>
+        <button class="pill" onclick="loadEx('fsl1')">FSL-1</button>
+        <button class="pill" onclick="loadEx('aspirin')">Aspirin (control)</button>
+      </div>
+    </div>
+
+    <div id="single-loading" class="hidden">
+      <div class="loading"><div class="spinner"></div> Analyzing against TLR2 pharmacophore model...</div>
+    </div>
+
+    <div id="single-results" class="hidden">
+      <div class="metrics" id="single-metrics"></div>
+      <div class="card score-block" id="single-scores"></div>
+      <div class="card" id="single-analysis"></div>
+      <div class="card" id="single-flags"></div>
+    </div>
+
+    <div id="single-empty" class="card">
+      <div class="empty">Enter a SMILES string above to analyze TLR2 binding potential</div>
+    </div>
+  </div>
+
+  <!-- BATCH PAGE -->
+  <div id="page-batch" class="hidden">
+    <div class="card">
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <div class="dz-icon">📂</div>
+        <div class="dz-label">Drop CSV here or click to browse</div>
+        <div class="dz-sub">Max 20 compounds · Required column: <span class="mono">smiles</span> · Optional: <span class="mono">name</span></div>
+      </div>
+      <input type="file" id="file-input" accept=".csv" style="display:none" onchange="handleFile(this)">
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:12px;color:var(--text3)">Or try demo:</span>
+        <button class="btn btn-sm" onclick="loadDemo()">Load 5 example compounds</button>
+      </div>
+    </div>
+
+    <div id="batch-progress" class="hidden card">
+      <div class="progress-label">
+        <span id="progress-text">Analyzing...</span>
+        <span id="progress-count">0 / 0</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <div id="batch-stats" class="hidden">
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="s-total">0</div></div>
+        <div class="stat"><div class="stat-label">High</div><div class="stat-val" style="color:var(--green)" id="s-high">0</div></div>
+        <div class="stat"><div class="stat-label">Medium</div><div class="stat-val" style="color:var(--amber)" id="s-med">0</div></div>
+        <div class="stat"><div class="stat-label">Low</div><div class="stat-val" style="color:var(--red)" id="s-low">0</div></div>
+      </div>
+    </div>
+
+    <div id="batch-results" class="hidden card">
+      <div class="row" style="justify-content:space-between;margin-bottom:12px">
+        <span style="font-size:13px;font-weight:500">Results</span>
+        <div class="row">
+          <button class="btn btn-sm btn-primary" onclick="downloadCSV()">⬇ Download CSV</button>
+          <button class="btn btn-sm" onclick="resetBatch()">New batch</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:130px">Name</th>
+              <th style="width:150px">SMILES</th>
+              <th style="width:65px">TLR2</th>
+              <th style="width:65px">Pharm.</th>
+              <th style="width:70px">MW</th>
+              <th style="width:55px">LogP</th>
+              <th style="width:110px">Verdict</th>
+            </tr>
+          </thead>
+          <tbody id="batch-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="batch-empty" class="card">
+      <div class="empty">Upload a CSV or load the demo to screen a compound library</div>
+    </div>
+  </div>
+
+  <!-- PRICING PAGE -->
+  <div id="page-pricing" class="hidden">
+    <div style="text-align:center;margin-bottom:2rem">
+      <div style="font-size:24px;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px">Simple pricing</div>
+      <div style="font-size:14px;color:var(--text2)">For academic labs and small biotechs screening TLR2 candidates</div>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-name">Free</div>
+        <div class="pricing-price">$0 <span>/ month</span></div>
+        <div class="pricing-desc">For individual researchers</div>
+        <ul class="pricing-features">
+          <li>20 single-compound analyses/month</li>
+          <li>1 batch upload/month (5 compounds)</li>
+          <li>Full pharmacophore report</li>
+          <li>CSV export</li>
+        </ul>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Most popular</div>
+        <div class="pricing-name">Lab</div>
+        <div class="pricing-price">$50 <span>/ month</span></div>
+        <div class="pricing-desc">For academic labs</div>
+        <ul class="pricing-features">
+          <li>500 analyses/month</li>
+          <li>Unlimited batch uploads (20 compounds)</li>
+          <li>API access</li>
+          <li>Priority support</li>
+          <li>CSV + JSON export</li>
+        </ul>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-name">Biotech</div>
+        <div class="pricing-price">$200 <span>/ month</span></div>
+        <div class="pricing-desc">For commercial teams</div>
+        <ul class="pricing-features">
+          <li>Unlimited analyses</li>
+          <li>Bulk batch (100 compounds)</li>
+          <li>Full API with higher rate limits</li>
+          <li>Custom pharmacophore models</li>
+          <li>Dedicated support</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1rem;text-align:center">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Interested in Lab or Biotech tier?</div>
+      <a href="mailto:your@email.com" class="btn btn-primary" style="display:inline-flex">Contact us →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = {
+  pam3csk4: "CCCCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCCCC)NC(=O)CCCCCCCCCCCCCCC",
+  snfkk: "CCCCCCCCCCCCCCCC(=O)NCCSC[C@@H](NC(=O)CCCCCCCCCCCCCCC)C(=O)N[C@@H](CO)C(=O)N[C@@H](CC(N)=O)C(=O)N[C@@H](Cc1ccccc1)C(=O)N[C@@H](CCCCN)C(=O)N[C@@H](CCCCN)C(=O)O",
+  fsl1: "CCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCC)NC(=O)[C@@H](N)CC(C)C",
+  aspirin: "CC(=O)Oc1ccccc1C(=O)O"
+};
+
+const DEMO = [
+  {name:"Pam3CSK4", smiles:EXAMPLES.pam3csk4},
+  {name:"Pam3Cys-SNFKK", smiles:EXAMPLES.snfkk},
+  {name:"FSL-1", smiles:EXAMPLES.fsl1},
+  {name:"Aspirin (control)", smiles:EXAMPLES.aspirin},
+  {name:"Lipid A analog", smiles:"CCCCCCCCCCCC(=O)OC[C@H](NC(=O)CCCCCCCCCCC)[C@@H](OC(=O)CCCCCCCCCCCC)COP(=O)(O)O"}
+];
+
+let batchResults = [], batchQueue = [], batchProcessed = 0, batchTotal = 0;
+
+function showPage(page) {
+  ['landing','screener','batch','pricing'].forEach(p => {
+    document.getElementById('page-'+p).classList.add('hidden');
+    const nav = document.getElementById('nav-'+p);
+    if (nav) nav.classList.remove('active');
+  });
+  document.getElementById('page-'+page).classList.remove('hidden');
+  const nav = document.getElementById('nav-'+page);
+  if (nav) nav.classList.add('active');
+}
+
+function loadEx(key) {
+  document.getElementById('smiles-input').value = EXAMPLES[key];
+}
+
+async function runSingle() {
+  const smiles = document.getElementById('smiles-input').value.trim();
+  if (!smiles) return;
+  document.getElementById('single-empty').classList.add('hidden');
+  document.getElementById('single-results').classList.add('hidden');
+  document.getElementById('single-loading').classList.remove('hidden');
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({smiles, name: 'Query molecule', mode: 'single'})
+    });
+    const r = await res.json();
+    renderSingle(r);
+  } catch(e) {
+    document.getElementById('single-loading').classList.add('hidden');
+    document.getElementById('single-empty').classList.remove('hidden');
+    document.getElementById('single-empty').querySelector('.empty').textContent = 'Analysis failed. Check your SMILES and try again.';
+  }
+}
+
+function barColor(s) {
+  if (s >= 70) return '#22c55e';
+  if (s >= 40) return '#f59e0b';
+  return '#ef4444';
+}
+
+function renderSingle(r) {
+  document.getElementById('single-loading').classList.add('hidden');
+
+  document.getElementById('single-metrics').innerHTML = `
+    <div class="metric"><div class="metric-label">TLR2 binding</div><div class="metric-val">${r.tlr2_binding_score}</div><div class="metric-sub">/ 100</div></div>
+    <div class="metric"><div class="metric-label">Pharm. match</div><div class="metric-val">${r.pharmacophore_match}</div><div class="metric-sub">2Z7X</div></div>
+    <div class="metric"><div class="metric-label">MW</div><div class="metric-val">${r.mw_estimate}</div><div class="metric-sub">Da</div></div>
+    <div class="metric"><div class="metric-label">LogP</div><div class="metric-val">${(r.logp_estimate||0).toFixed(1)}</div><div class="metric-sub">lipophilicity</div></div>
+  `;
+
+  document.getElementById('single-scores').innerHTML = `
+    <div class="score-row"><span>TLR2 binding score</span><span>${r.tlr2_binding_score}/100</span></div>
+    <div class="bar"><div class="bar-fill" style="width:${r.tlr2_binding_score}%;background:${barColor(r.tlr2_binding_score)}"></div></div>
+    <div class="score-row"><span>Pharmacophore match (PDB: 2Z7X)</span><span>${r.pharmacophore_match}/100</span></div>
+    <div class="bar"><div class="bar-fill" style="width:${r.pharmacophore_match}%;background:${barColor(r.pharmacophore_match)}"></div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:10px">
+      <span class="verdict ${r.verdict}">${r.verdict_text}</span>
+      <span style="font-size:12px;color:var(--text3)">${r.lipopeptide_class||''}</span>
+    </div>
+    <div class="contacts">
+      <span class="contact-badge ${r.asn294_contact?'on':''}">Asn294 contact</span>
+      <span class="contact-badge ${r.phe349_contact?'on':''}">Phe349 contact</span>
+      <span class="contact-badge ${r.has_lipid_anchor?'on':''}">Lipid anchor</span>
+    </div>
+  `;
+
+  document.getElementById('single-analysis').innerHTML = `
+    <div class="card-label">Expert analysis</div>
+    <div class="analysis-text">${r.analysis||''}</div>
+  `;
+
+  const flags = (r.flags||[]).map(f=>`<div class="flag ${f.type}"><div class="dot"></div><span>${f.text}</span></div>`).join('');
+  document.getElementById('single-flags').innerHTML = `<div class="card-label">Drug-likeness flags</div><div class="flags">${flags}</div>`;
+
+  document.getElementById('single-results').classList.remove('hidden');
+}
+
+function loadDemo() { batchQueue = [...DEMO]; startBatch(); }
+
+function handleFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  Papa.parse(file, {
+    header: true, skipEmptyLines: true,
+    complete: (res) => {
+      const rows = res.data.slice(0,20);
+      const sk = Object.keys(rows[0]||{}).find(k=>k.toLowerCase()==='smiles');
+      const nk = Object.keys(rows[0]||{}).find(k=>k.toLowerCase()==='name');
+      if (!sk) { alert('CSV must have a "smiles" column.'); return; }
+      batchQueue = rows.map(r=>({smiles:r[sk], name:r[nk]||r[sk].slice(0,14)+'...'})).filter(r=>r.smiles);
+      startBatch();
+    }
+  });
+}
+
+function startBatch() {
+  batchResults = []; batchProcessed = 0; batchTotal = batchQueue.length;
+  document.getElementById('batch-empty').classList.add('hidden');
+  document.getElementById('batch-results').classList.add('hidden');
+  document.getElementById('batch-stats').classList.add('hidden');
+  document.getElementById('batch-progress').classList.remove('hidden');
+  document.getElementById('batch-tbody').innerHTML = '';
+  updateBatchProgress();
+  processBatchNext();
+}
+
+function updateBatchProgress() {
+  document.getElementById('progress-count').textContent = batchProcessed+' / '+batchTotal;
+  document.getElementById('progress-fill').style.width = (batchTotal?Math.round(batchProcessed/batchTotal*100):0)+'%';
+  document.getElementById('progress-text').textContent = batchProcessed < batchTotal ? 'Analyzing '+( batchQueue[batchProcessed]?.name||'compound')+'...' : 'Done';
+}
+
+async function processBatchNext() {
+  if (batchProcessed >= batchTotal) { finalizeBatch(); return; }
+  const item = batchQueue[batchProcessed];
+  const r = await analyzeBatchOne(item.smiles, item.name);
+  batchResults.push(r);
+  batchProcessed++;
+  updateBatchProgress();
+  appendBatchRow(r);
+  if (batchProcessed === 1) document.getElementById('batch-results').classList.remove('hidden');
+  setTimeout(processBatchNext, 150);
+}
+
+async function analyzeBatchOne(smiles, name) {
+  try {
+    const res = await fetch('/api/analyze', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({smiles, name, mode:'batch'})
+    });
+    const d = await res.json();
+    return {...d, smiles, input_name:name, error:false};
+  } catch(e) {
+    return {molecule_name:name, smiles, tlr2_binding_score:0, pharmacophore_match:0, mw_estimate:0, logp_estimate:0, verdict:'low', verdict_text:'Error', error:true};
+  }
+}
+
+function appendBatchRow(r) {
+  const s = r.smiles.length>20?r.smiles.slice(0,20)+'…':r.smiles;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td title="${r.molecule_name||r.input_name}">${r.molecule_name||r.input_name}</td>
+    <td style="font-family:var(--mono);font-size:11px;color:var(--text3)" title="${r.smiles}">${s}</td>
+    <td>${r.error?'—':r.tlr2_binding_score}</td>
+    <td>${r.error?'—':r.pharmacophore_match}</td>
+    <td>${r.error?'—':r.mw_estimate}</td>
+    <td>${r.error?'—':(r.logp_estimate||0).toFixed(1)}</td>
+    <td><span class="verdict ${r.verdict}" style="font-size:11px">${r.verdict_text||r.verdict}</span></td>
+  `;
+  document.getElementById('batch-tbody').appendChild(tr);
+}
+
+function finalizeBatch() {
+  document.getElementById('batch-progress').classList.add('hidden');
+  document.getElementById('batch-stats').classList.remove('hidden');
+  document.getElementById('s-total').textContent = batchResults.length;
+  document.getElementById('s-high').textContent = batchResults.filter(r=>r.verdict==='high').length;
+  document.getElementById('s-med').textContent = batchResults.filter(r=>r.verdict==='medium').length;
+  document.getElementById('s-low').textContent = batchResults.filter(r=>r.verdict==='low').length;
+}
+
+function downloadCSV() {
+  const headers = ['name','smiles','tlr2_binding_score','pharmacophore_match','mw_estimate','logp_estimate','lipopeptide_class','verdict','verdict_text'];
+  const rows = batchResults.map(r=>headers.map(h=>{const v=r[h]??''; return typeof v==='string'&&v.includes(',')?`"${v}"`:v;}).join(','));
+  const csv = [headers.join(','),...rows].join('\n');
+  const a = document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='tlr2_results.csv'; a.click();
+}
+
+function resetBatch() {
+  batchResults=[]; batchQueue=[]; batchProcessed=0; batchTotal=0;
+  document.getElementById('batch-tbody').innerHTML='';
+  document.getElementById('batch-results').classList.add('hidden');
+  document.getElementById('batch-stats').classList.add('hidden');
+  document.getElementById('batch-progress').classList.add('hidden');
+  document.getElementById('batch-empty').classList.remove('hidden');
+  document.getElementById('file-input').value='';
+}
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e=>{e.preventDefault(); dz.style.background='var(--bg3)';});
+dz.addEventListener('dragleave', ()=>{ dz.style.background=''; });
+dz.addEventListener('drop', e=>{
+  e.preventDefault(); dz.style.background='';
+  const file = e.dataTransfer.files[0];
+  if (file) { const fi=document.getElementById('file-input'); const dt=new DataTransfer(); dt.items.add(file); fi.files=dt.files; handleFile(fi); }
+});
+
+document.getElementById('smiles-input').addEventListener('keydown', e=>{ if(e.key==='Enter') runSingle(); });
+
+showPage('screener');
+</script>
+</body>
+</html>
