@@ -251,7 +251,7 @@
     </div>
 
     <div id="single-loading" class="hidden">
-      <div class="loading"><div class="spinner"></div> Analyzing against TLR2 pharmacophore model...</div>
+      <div class="loading"><div class="spinner"></div> Running ML model + expert analysis...</div>
     </div>
 
     <div id="single-results" class="hidden">
@@ -310,13 +310,13 @@
         <table>
           <thead>
             <tr>
-              <th style="width:130px">Name</th>
-              <th style="width:150px">SMILES</th>
-              <th style="width:65px">TLR2</th>
-              <th style="width:65px">Pharm.</th>
-              <th style="width:70px">MW</th>
-              <th style="width:55px">LogP</th>
-              <th style="width:110px">Verdict</th>
+              <th style="width:120px">Name</th>
+              <th style="width:130px">SMILES</th>
+              <th style="width:65px">pIC50</th>
+              <th style="width:80px">IC50 (nM)</th>
+              <th style="width:60px">MW</th>
+              <th style="width:50px">LogP</th>
+              <th style="width:105px">Verdict</th>
             </tr>
           </thead>
           <tbody id="batch-tbody"></tbody>
@@ -421,17 +421,32 @@ async function runSingle() {
   document.getElementById('single-loading').classList.remove('hidden');
 
   try {
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({smiles, name: 'Query molecule', mode: 'single'})
-    });
-    const r = await res.json();
+    // ML model for scores; LLM for expert analysis text only
+    const [mlRes, llmRes] = await Promise.allSettled([
+      fetch('/api/predict', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name:'Query molecule'})}),
+      fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name:'Query molecule', mode:'single'})})
+    ]);
+
+    const ml = mlRes.status === 'fulfilled' ? await mlRes.value.json() : null;
+    const llm = llmRes.status === 'fulfilled' ? await llmRes.value.json() : null;
+
+    if (!ml || ml.error) throw new Error(ml?.error || 'ML prediction failed');
+
+    // Merge: ML scores + LLM expert analysis text + LLM structural contacts
+    const r = {
+      ...ml,
+      analysis: llm?.analysis || '',
+      flags: llm?.flags || [],
+      asn294_contact: llm?.asn294_contact ?? (ml.acyl_chains >= 2),
+      phe349_contact: llm?.phe349_contact ?? (ml.acyl_chains >= 3),
+      has_lipid_anchor: llm?.has_lipid_anchor ?? (ml.acyl_chains >= 1),
+      lipopeptide_class: llm?.lipopeptide_class || '',
+    };
     renderSingle(r);
   } catch(e) {
     document.getElementById('single-loading').classList.add('hidden');
     document.getElementById('single-empty').classList.remove('hidden');
-    document.getElementById('single-empty').querySelector('.empty').textContent = 'Analysis failed. Check your SMILES and try again.';
+    document.getElementById('single-empty').querySelector('.empty').textContent = 'Analysis failed: ' + e.message;
   }
 }
 
@@ -445,8 +460,8 @@ function renderSingle(r) {
   document.getElementById('single-loading').classList.add('hidden');
 
   document.getElementById('single-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">TLR2 binding</div><div class="metric-val">${r.tlr2_binding_score}</div><div class="metric-sub">/ 100</div></div>
-    <div class="metric"><div class="metric-label">Pharm. match</div><div class="metric-val">${r.pharmacophore_match}</div><div class="metric-sub">2Z7X</div></div>
+    <div class="metric"><div class="metric-label">pIC50</div><div class="metric-val">${(r.pIC50||0).toFixed(1)}</div><div class="metric-sub">–log₁₀(IC50)</div></div>
+    <div class="metric"><div class="metric-label">IC50</div><div class="metric-val">${r.IC50_nM < 1 ? '<1' : r.IC50_nM > 1e6 ? '>1M' : r.IC50_nM < 1000 ? r.IC50_nM.toFixed(0) : (r.IC50_nM/1000).toFixed(1)+'k'}</div><div class="metric-sub">nM</div></div>
     <div class="metric"><div class="metric-label">MW</div><div class="metric-val">${r.mw_estimate}</div><div class="metric-sub">Da</div></div>
     <div class="metric"><div class="metric-label">LogP</div><div class="metric-val">${(r.logp_estimate||0).toFixed(1)}</div><div class="metric-sub">lipophilicity</div></div>
   `;
@@ -465,6 +480,7 @@ function renderSingle(r) {
       <span class="contact-badge ${r.phe349_contact?'on':''}">Phe349 contact</span>
       <span class="contact-badge ${r.has_lipid_anchor?'on':''}">Lipid anchor</span>
     </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3)">Score from ${r.model_name||'ML'} model (R²=${r.model_r2||'—'} on TLR2 SAR data) · pIC50=${(r.pIC50||0).toFixed(2)}</div>
   `;
 
   document.getElementById('single-analysis').innerHTML = `
@@ -527,14 +543,15 @@ async function processBatchNext() {
 
 async function analyzeBatchOne(smiles, name) {
   try {
-    const res = await fetch('/api/analyze', {
+    const res = await fetch('/api/predict', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({smiles, name, mode:'batch'})
+      body: JSON.stringify({smiles, name})
     });
     const d = await res.json();
+    if (d.error) throw new Error(d.error);
     return {...d, smiles, input_name:name, error:false};
   } catch(e) {
-    return {molecule_name:name, smiles, tlr2_binding_score:0, pharmacophore_match:0, mw_estimate:0, logp_estimate:0, verdict:'low', verdict_text:'Error', error:true};
+    return {molecule_name:name, smiles, tlr2_binding_score:0, pharmacophore_match:0, mw_estimate:0, logp_estimate:0, pIC50:0, IC50_nM:null, verdict:'low', verdict_text:'Error', error:true};
   }
 }
 
@@ -544,8 +561,8 @@ function appendBatchRow(r) {
   tr.innerHTML = `
     <td title="${r.molecule_name||r.input_name}">${r.molecule_name||r.input_name}</td>
     <td style="font-family:var(--mono);font-size:11px;color:var(--text3)" title="${r.smiles}">${s}</td>
-    <td>${r.error?'—':r.tlr2_binding_score}</td>
-    <td>${r.error?'—':r.pharmacophore_match}</td>
+    <td>${r.error?'—':(r.pIC50||0).toFixed(2)}</td>
+    <td>${r.error||r.IC50_nM==null?'—':r.IC50_nM<1?'<1':r.IC50_nM>1e6?'>1M':r.IC50_nM.toFixed(1)}</td>
     <td>${r.error?'—':r.mw_estimate}</td>
     <td>${r.error?'—':(r.logp_estimate||0).toFixed(1)}</td>
     <td><span class="verdict ${r.verdict}" style="font-size:11px">${r.verdict_text||r.verdict}</span></td>
@@ -563,7 +580,7 @@ function finalizeBatch() {
 }
 
 function downloadCSV() {
-  const headers = ['name','smiles','tlr2_binding_score','pharmacophore_match','mw_estimate','logp_estimate','lipopeptide_class','verdict','verdict_text'];
+  const headers = ['name','smiles','pIC50','IC50_nM','tlr2_binding_score','mw_estimate','logp_estimate','acyl_chains','verdict','verdict_text'];
   const rows = batchResults.map(r=>headers.map(h=>{const v=r[h]??''; return typeof v==='string'&&v.includes(',')?`"${v}"`:v;}).join(','));
   const csv = [headers.join(','),...rows].join('\n');
   const a = document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='tlr2_results.csv'; a.click();
