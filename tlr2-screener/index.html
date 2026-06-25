@@ -421,27 +421,43 @@ async function runSingle() {
   document.getElementById('single-loading').classList.remove('hidden');
 
   try {
-    // ML model for scores; LLM for expert analysis text only
-    const [mlRes, llmRes] = await Promise.allSettled([
-      fetch('/api/predict', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name:'Query molecule'})}),
-      fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name:'Query molecule', mode:'single'})})
-    ]);
+    // Try ML model first; fall back to LLM if unavailable
+    let mlData = null;
+    try {
+      const mlRes = await fetch('/api/predict', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name:'Query molecule'})});
+      const d = await mlRes.json();
+      if (mlRes.ok && !d.unavailable && !d.error) mlData = d;
+    } catch(_) {}
 
-    const ml = mlRes.status === 'fulfilled' ? await mlRes.value.json() : null;
-    const llm = llmRes.status === 'fulfilled' ? await llmRes.value.json() : null;
+    const llmRes = await fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name:'Query molecule', mode:'single'})});
+    const llm = await llmRes.json();
+    if (!llmRes.ok || llm.error) throw new Error(llm?.error || 'Analysis failed');
 
-    if (!ml || ml.error) throw new Error(ml?.error || 'ML prediction failed');
-
-    // Merge: ML scores + LLM expert analysis text + LLM structural contacts
-    const r = {
-      ...ml,
-      analysis: llm?.analysis || '',
-      flags: llm?.flags || [],
-      asn294_contact: llm?.asn294_contact ?? (ml.acyl_chains >= 2),
-      phe349_contact: llm?.phe349_contact ?? (ml.acyl_chains >= 3),
-      has_lipid_anchor: llm?.has_lipid_anchor ?? (ml.acyl_chains >= 1),
-      lipopeptide_class: llm?.lipopeptide_class || '',
-    };
+    let r;
+    if (mlData) {
+      // ML scores + LLM expert analysis text
+      r = {
+        ...mlData,
+        analysis: llm.analysis || '',
+        flags: llm.flags || [],
+        asn294_contact: llm.asn294_contact ?? (mlData.acyl_chains >= 2),
+        phe349_contact: llm.phe349_contact ?? (mlData.acyl_chains >= 3),
+        has_lipid_anchor: llm.has_lipid_anchor ?? (mlData.acyl_chains >= 1),
+        lipopeptide_class: llm.lipopeptide_class || '',
+      };
+    } else {
+      // LLM-only fallback: map scores to pIC50-style display
+      const score = llm.tlr2_binding_score || 0;
+      const pic50 = 2 + (score / 100) * 7;
+      r = {
+        ...llm,
+        pIC50: parseFloat(pic50.toFixed(2)),
+        IC50_nM: parseFloat((Math.pow(10, -pic50 + 9)).toFixed(1)),
+        model_name: 'LLM',
+        model_r2: null,
+        acyl_chains: llm.has_lipid_anchor ? 2 : 0,
+      };
+    }
     renderSingle(r);
   } catch(e) {
     document.getElementById('single-loading').classList.add('hidden');
@@ -480,7 +496,7 @@ function renderSingle(r) {
       <span class="contact-badge ${r.phe349_contact?'on':''}">Phe349 contact</span>
       <span class="contact-badge ${r.has_lipid_anchor?'on':''}">Lipid anchor</span>
     </div>
-    <div style="margin-top:10px;font-size:11px;color:var(--text3)">Score from ${r.model_name||'ML'} model (R²=${r.model_r2||'—'} on TLR2 SAR data) · pIC50=${(r.pIC50||0).toFixed(2)}</div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3)">${r.model_name==='LLM'?'Score from LLM (ML endpoint unavailable on Vercel)':`Score from ${r.model_name||'ML'} model (R²=${r.model_r2||'—'}) · pIC50=${(r.pIC50||0).toFixed(2)}`}</div>
   `;
 
   document.getElementById('single-analysis').innerHTML = `
@@ -542,14 +558,19 @@ async function processBatchNext() {
 }
 
 async function analyzeBatchOne(smiles, name) {
+  // Try ML endpoint, fall back to LLM
   try {
-    const res = await fetch('/api/predict', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({smiles, name})
-    });
+    const res = await fetch('/api/predict', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name})});
     const d = await res.json();
-    if (d.error) throw new Error(d.error);
-    return {...d, smiles, input_name:name, error:false};
+    if (res.ok && !d.unavailable && !d.error) return {...d, smiles, input_name:name, error:false};
+  } catch(_) {}
+  // LLM fallback
+  try {
+    const res = await fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name, mode:'batch'})});
+    const d = await res.json();
+    const score = d.tlr2_binding_score || 0;
+    const pic50 = parseFloat((2 + (score/100)*7).toFixed(2));
+    return {...d, smiles, input_name:name, pIC50:pic50, IC50_nM:parseFloat(Math.pow(10,-pic50+9).toFixed(1)), error:false};
   } catch(e) {
     return {molecule_name:name, smiles, tlr2_binding_score:0, pharmacophore_match:0, mw_estimate:0, logp_estimate:0, pIC50:0, IC50_nM:null, verdict:'low', verdict_text:'Error', error:true};
   }

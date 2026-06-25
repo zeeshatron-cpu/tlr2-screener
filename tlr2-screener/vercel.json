@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    { "source": "/api/predict", "destination": "/api/predict.py" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
