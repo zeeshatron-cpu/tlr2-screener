@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: mode === 'batch' ? 400 : 1000,
+        max_tokens: mode === 'batch' ? 400 : 1500,
         system: systemPrompt,
         messages: [{ role: 'user', content: `Name: ${name || 'Query molecule'}. SMILES: ${smiles}` }]
       })
@@ -46,8 +46,15 @@ export default async function handler(req, res) {
     const data = await response.json();
     if (!response.ok) return res.status(500).json({ error: data.error?.message || 'API error' });
 
-    const raw = data.content?.[0]?.text || '{}';
-    const result = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    const raw = (data.content?.[0]?.text || '{}').replace(/```json|```/g, '').trim();
+    let result;
+    try {
+      result = JSON.parse(raw);
+    } catch (_) {
+      // Truncated JSON — extract what we can with a forgiving parse
+      const safe = raw.replace(/,\s*"[^"]*"\s*:\s*"[^"]*$/, '').replace(/,\s*"[^"]*":\s*$/, '') + '}';
+      try { result = JSON.parse(safe); } catch(__) { result = JSON.parse(raw.slice(0, raw.lastIndexOf(',')) + '}'); }
+    }
 
     // Count usage only on success
     try { await incrementUsage(req); } catch (_) {}
