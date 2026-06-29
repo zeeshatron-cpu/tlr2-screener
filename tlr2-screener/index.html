@@ -847,7 +847,7 @@ async function lookupByName() {
   } catch(_) {}
 
   btn.textContent = 'Not found'; btn.style.color = 'var(--red)';
-  setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
+  setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 4000);
 }
 
 document.getElementById('name-lookup').addEventListener('keydown', e => { if (e.key === 'Enter') lookupByName(); });
