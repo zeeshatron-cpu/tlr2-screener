@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TLR2 Screener — Lipopeptide Binding Prediction</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://jsme-editor.github.io/dist/jsme/jsme.nocache.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -157,6 +158,16 @@
   .pricing-features li::before { content: '✓  '; color: var(--green); font-weight: 600; }
   .section-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
   .divider { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: flex; align-items: center; justify-content: center; }
+  .modal { background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 1.25rem; width: 460px; max-width: 95vw; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: 14px; font-weight: 500; }
+  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
+  #jsme-container { background: #fff; border-radius: 6px; overflow: hidden; }
+
+  /* NAME LOOKUP */
+  .lookup-row { display: flex; gap: 6px; margin-bottom: 8px; }
+
   .usage-badge { font-size: 11px; color: var(--text3); background: var(--bg2); border: 0.5px solid var(--border); border-radius: 20px; padding: 3px 10px; cursor: default; }
   .usage-badge.warn { color: var(--amber); border-color: rgba(245,158,11,0.3); }
   .usage-badge.over { color: var(--red); border-color: rgba(239,68,68,0.3); }
@@ -242,9 +253,18 @@
   <!-- SINGLE SCREENER PAGE -->
   <div id="page-screener" class="hidden">
     <div class="card">
+      <div class="card-label">Compound name lookup</div>
+      <div class="lookup-row">
+        <input type="text" id="name-lookup" placeholder="e.g. Pam3CSK4, lipid A, aspirin..." style="flex:1" />
+        <button class="btn" id="lookup-btn" onclick="lookupByName()">Lookup →</button>
+      </div>
+      <div style="font-size:11px;color:var(--text3)">Searches PubChem — auto-fills SMILES below</div>
+    </div>
+    <div class="card">
       <div class="card-label">SMILES input</div>
       <div class="row" style="margin-bottom:8px">
-        <input type="text" id="smiles-input" placeholder="Paste SMILES string here..." style="flex:1" />
+        <input type="text" id="smiles-input" placeholder="Paste SMILES or use lookup / draw above..." style="flex:1" />
+        <button class="btn" onclick="openDrawer()" title="Draw molecule">✏️ Draw</button>
         <button class="btn btn-primary" onclick="runSingle()">Analyze →</button>
       </div>
       <div class="pills">
@@ -391,6 +411,21 @@
     <div class="card" style="margin-top:0.5rem;text-align:center">
       <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Want Lab or Biotech access?</div>
       <a href="mailto:zeeshatron@gmail.com?subject=TLR2 Screener API Key Request" class="btn btn-primary" style="display:inline-flex">Email for a key →</a>
+    </div>
+  </div>
+</div>
+
+<!-- MOLECULE DRAW MODAL -->
+<div class="modal-overlay hidden" id="draw-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span>Draw molecule</span>
+      <button class="btn btn-sm" onclick="closeDrawer()">✕</button>
+    </div>
+    <div id="jsme-container"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeDrawer()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmDraw()">Use this structure →</button>
     </div>
   </div>
 </div>
@@ -700,6 +735,82 @@ window.showPage = function(page) {
     document.getElementById('apikey-status').textContent = k ? 'Key loaded from browser storage.' : 'Key is stored in your browser only and sent with each request.';
   }
 };
+
+// --- JSME molecule drawer ---
+var _jsmeApplet = null;
+var _jsmeReady = false;
+
+function jsmeOnLoad() {
+  _jsmeReady = true;
+  if (document.getElementById('draw-modal') && !document.getElementById('draw-modal').classList.contains('hidden')) {
+    _initJsme();
+  }
+}
+
+function _initJsme() {
+  if (_jsmeApplet) return;
+  _jsmeApplet = new JSApplet.JSME('jsme-container', '420px', '340px', {
+    options: 'hydrogens,newlook,nostereo'
+  });
+}
+
+function openDrawer() {
+  document.getElementById('draw-modal').classList.remove('hidden');
+  if (_jsmeReady) _initJsme();
+  // Pre-load current SMILES into drawer if one exists
+  const cur = document.getElementById('smiles-input').value.trim();
+  if (cur && _jsmeApplet) {
+    try { _jsmeApplet.readMolecule(cur); } catch(_) {}
+  }
+}
+
+function closeDrawer() {
+  document.getElementById('draw-modal').classList.add('hidden');
+}
+
+function confirmDraw() {
+  if (_jsmeApplet) {
+    const smi = _jsmeApplet.smiles();
+    if (smi && smi !== '*' && smi.length > 1) {
+      document.getElementById('smiles-input').value = smi;
+    }
+  }
+  closeDrawer();
+}
+
+// Close modal on overlay click
+document.getElementById('draw-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDrawer();
+});
+
+// --- PubChem name lookup ---
+async function lookupByName() {
+  const name = document.getElementById('name-lookup').value.trim();
+  if (!name) return;
+  const btn = document.getElementById('lookup-btn');
+  const orig = btn.textContent;
+  btn.textContent = 'Searching...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(
+      `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(name)}/property/IsomericSMILES,MolecularFormula,MolecularWeight/JSON`
+    );
+    if (!res.ok) throw new Error('not found');
+    const d = await res.json();
+    const props = d.PropertyTable?.Properties?.[0];
+    if (!props?.IsomericSMILES) throw new Error('no SMILES');
+    document.getElementById('smiles-input').value = props.IsomericSMILES;
+    btn.textContent = '✓ Found';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
+  } catch(_) {
+    btn.textContent = 'Not found';
+    btn.style.color = 'var(--red)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
+  }
+}
+
+document.getElementById('name-lookup').addEventListener('keydown', e => { if (e.key === 'Enter') lookupByName(); });
 
 refreshUsage();
 showPage('screener');
