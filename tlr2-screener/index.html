@@ -791,23 +791,45 @@ async function lookupByName() {
   const orig = btn.textContent;
   btn.textContent = 'Searching...';
   btn.disabled = true;
-  try {
-    const res = await fetch(
-      `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(name)}/property/IsomericSMILES,MolecularFormula,MolecularWeight/JSON`
-    );
-    if (!res.ok) throw new Error('not found');
-    const d = await res.json();
-    const props = d.PropertyTable?.Properties?.[0];
-    if (!props?.IsomericSMILES) throw new Error('no SMILES');
-    document.getElementById('smiles-input').value = props.IsomericSMILES;
-    btn.textContent = '✓ Found';
-    btn.style.color = 'var(--green)';
+
+  // Local overrides for known compounds PubChem indexes poorly
+  const LOCAL = {
+    'pam3csk4': 'CCCCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCCCC)NC(=O)CCCCCCCCCCCCCCC',
+    'pam3cys-snfkk': 'CCCCCCCCCCCCCCCC(=O)NCCSC[C@@H](NC(=O)CCCCCCCCCCCCCCC)C(=O)N[C@@H](CO)C(=O)N[C@@H](CC(N)=O)C(=O)N[C@@H](Cc1ccccc1)C(=O)N[C@@H](CCCCN)C(=O)N[C@@H](CCCCN)C(=O)O',
+    'fsl-1': 'CCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCC)NC(=O)[C@@H](N)CC(C)C',
+    'fsl1': 'CCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCC)NC(=O)[C@@H](N)CC(C)C',
+    'pam2csk4': 'CCCCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCCCC)NC(=O)[C@@H](N)CCCCN',
+  };
+  const key = name.toLowerCase().replace(/\s+/g, '');
+  if (LOCAL[key]) {
+    document.getElementById('smiles-input').value = LOCAL[key];
+    btn.textContent = '✓ Found'; btn.style.color = 'var(--green)';
     setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
-  } catch(_) {
-    btn.textContent = 'Not found';
-    btn.style.color = 'var(--red)';
-    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
+    return;
   }
+
+  // Try PubChem name search, then synonym search as fallback
+  const attempts = [
+    `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(name)}/property/IsomericSMILES/JSON`,
+    `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(name.replace(/[^a-zA-Z0-9]/g,''))}/property/IsomericSMILES/JSON`,
+  ];
+  for (const url of attempts) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const d = await res.json();
+      const smi = d.PropertyTable?.Properties?.[0]?.IsomericSMILES;
+      if (smi) {
+        document.getElementById('smiles-input').value = smi;
+        btn.textContent = '✓ Found'; btn.style.color = 'var(--green)';
+        setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
+        return;
+      }
+    } catch(_) {}
+  }
+
+  btn.textContent = 'Not found'; btn.style.color = 'var(--red)';
+  setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
 }
 
 document.getElementById('name-lookup').addEventListener('keydown', e => { if (e.key === 'Enter') lookupByName(); });
