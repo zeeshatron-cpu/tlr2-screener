@@ -69,6 +69,7 @@
   .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
   .pill { font-size: 11px; padding: 3px 10px; border: 0.5px solid var(--border2); border-radius: 20px; background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; }
   .pill:hover { background: var(--bg3); color: var(--text); }
+  .target-pill.active { background: var(--blue-bg); color: var(--blue); border-color: rgba(59,130,246,0.4); }
 
   /* METRIC GRID */
   .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 1rem; }
@@ -261,6 +262,16 @@
       <div style="font-size:11px;color:var(--text3)">Searches PubChem — auto-fills SMILES below</div>
     </div>
     <div class="card">
+      <div class="card-label">Target receptor</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">
+        <button class="pill target-pill active" id="target-TLR1/2" onclick="setTarget('TLR1/2')">TLR1/2 — Triacyl lipopeptides</button>
+        <button class="pill target-pill" id="target-TLR2/6" onclick="setTarget('TLR2/6')">TLR2/6 — Diacyl lipopeptides</button>
+        <button class="pill target-pill" id="target-TLR4" onclick="setTarget('TLR4')">TLR4 — LPS / Lipid A</button>
+        <button class="pill target-pill" id="target-general" onclick="setTarget('general')">General binding</button>
+      </div>
+      <div id="target-desc" style="font-size:11px;color:var(--text3)">Pam3CSK4-type ligands binding TLR1-TLR2 heterodimer (PDB: 2Z7X)</div>
+    </div>
+    <div class="card">
       <div class="card-label">SMILES input</div>
       <div class="row" style="margin-bottom:8px">
         <input type="text" id="smiles-input" placeholder="Paste SMILES or use lookup / draw above..." style="flex:1" />
@@ -448,6 +459,21 @@ const DEMO = [
 
 let batchResults = [], batchQueue = [], batchProcessed = 0, batchTotal = 0;
 
+// --- Target selector ---
+const TARGET_DESCS = {
+  'TLR1/2': 'Pam3CSK4-type ligands binding TLR1-TLR2 heterodimer (PDB: 2Z7X)',
+  'TLR2/6': 'FSL-1/MALP-2-type diacyl lipopeptides binding TLR2-TLR6 heterodimer',
+  'TLR4':   'LPS/Lipid A analogues binding TLR4-MD2 complex (PDB: 3FXI)',
+  'general':'General PRR binding — no specific receptor assumed',
+};
+let _target = 'TLR1/2';
+function setTarget(t) {
+  _target = t;
+  document.querySelectorAll('.target-pill').forEach(p => p.classList.remove('active'));
+  document.getElementById('target-'+t).classList.add('active');
+  document.getElementById('target-desc').textContent = TARGET_DESCS[t];
+}
+
 // --- API key helpers ---
 function getApiKey() { return localStorage.getItem('tlr2_api_key') || ''; }
 function saveApiKey() {
@@ -516,13 +542,13 @@ async function runSingle() {
     // Try ML model first; fall back to LLM if unavailable
     let mlData = null;
     try {
-      const mlRes = await apiFetch('/api/predict', {method:'POST', body:JSON.stringify({smiles, name:'Query molecule'})});
+      const mlRes = await apiFetch('/api/predict', {method:'POST', body:JSON.stringify({smiles, name:'Query molecule', target:_target})});
       const d = await mlRes.json();
       if (mlRes.status === 429) { showQuotaBanner(document.getElementById('single-loading')); throw new Error(d.error); }
       if (mlRes.ok && !d.unavailable && !d.error) mlData = d;
     } catch(e) { if (e.message?.includes('limit')) throw e; }
 
-    const llmRes = await apiFetch('/api/analyze', {method:'POST', body:JSON.stringify({smiles, name:'Query molecule', mode:'single'})});
+    const llmRes = await apiFetch('/api/analyze', {method:'POST', body:JSON.stringify({smiles, name:'Query molecule', mode:'single', target:_target})});
     const llm = await llmRes.json();
     if (llmRes.status === 429) { showQuotaBanner(document.getElementById('single-loading')); throw new Error(llm.error); }
     if (!llmRes.ok || llm.error) throw new Error(llm?.error || 'Analysis failed');

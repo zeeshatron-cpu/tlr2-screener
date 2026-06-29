@@ -3,7 +3,7 @@ import { checkQuota, incrementUsage } from './usage.js';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { smiles, name, mode } = req.body;
+  const { smiles, name, mode, target } = req.body;
   if (!smiles) return res.status(400).json({ error: 'SMILES string required' });
 
   // Quota check
@@ -23,9 +23,16 @@ export default async function handler(req, res) {
     });
   }
 
+  const targetCtx = {
+    'TLR1/2':   'TLR1-TLR2 heterodimer binding (PDB: 2Z7X). Key pharmacophore: three acyl chains, N-terminal cysteine lipopeptide. Reference agonist: Pam3CSK4.',
+    'TLR2/6':   'TLR2-TLR6 heterodimer binding. Key pharmacophore: two acyl chains, MALP-2/FSL-1 scaffold. Reference agonist: FSL-1.',
+    'TLR4':     'TLR4-MD2 complex binding (PDB: 3FXI). Key pharmacophore: lipid A bisphosphorylated diglucosamine with 4-6 acyl chains. Reference agonist: lipid A.',
+    'general':  'general pattern recognition receptor (PRR) binding. Assess overall drug-likeness, lipophilicity, and any immune-activating structural features.',
+  }[target || 'TLR1/2'];
+
   const systemPrompt = mode === 'batch'
-    ? `You are a computational chemistry expert specializing in TLR2 lipopeptide drug design. Analyze the SMILES and respond ONLY with a valid JSON object, no prose, no markdown fences. Schema: {"molecule_name":string,"tlr2_binding_score":number(0-100),"pharmacophore_match":number(0-100),"mw_estimate":number,"logp_estimate":number,"lipopeptide_class":string,"verdict":"high"|"medium"|"low","verdict_text":string}. Base scores on real SAR: triacylated lipopeptides score highest (TLR1-TLR2), diacylated are TLR2/6, non-lipopeptides score low.`
-    : `You are a computational chemistry expert specializing in TLR2 lipopeptide drug design. Given a SMILES string, analyze it as a potential TLR2 agonist based on the TLR1-TLR2 crystal structure (PDB: 2Z7X) and known lipopeptide SAR. Respond ONLY with a valid JSON object, no prose, no markdown fences. Schema: {"molecule_name":string,"tlr2_binding_score":number(0-100),"pharmacophore_match":number(0-100),"mw_estimate":number,"logp_estimate":number,"lipopeptide_class":string,"verdict":"high"|"medium"|"low","verdict_text":string,"asn294_contact":boolean,"phe349_contact":boolean,"has_lipid_anchor":boolean,"flags":[{"type":"pass"|"warn"|"fail","text":string}],"analysis":string}. Base scores on real SAR: triacylated lipopeptides highest, diacylated mid, non-lipopeptides lowest. Be scientifically accurate.`;
+    ? `You are a computational chemistry expert. Analyze this SMILES for ${targetCtx} Respond ONLY with valid JSON, no prose, no markdown. Schema: {"molecule_name":string,"tlr2_binding_score":number(0-100),"pharmacophore_match":number(0-100),"mw_estimate":number,"logp_estimate":number,"lipopeptide_class":string,"verdict":"high"|"medium"|"low","verdict_text":string}.`
+    : `You are a computational chemistry expert. Analyze this SMILES for ${targetCtx} Respond ONLY with valid JSON, no prose, no markdown. Schema: {"molecule_name":string,"tlr2_binding_score":number(0-100),"pharmacophore_match":number(0-100),"mw_estimate":number,"logp_estimate":number,"lipopeptide_class":string,"verdict":"high"|"medium"|"low","verdict_text":string,"asn294_contact":boolean,"phe349_contact":boolean,"has_lipid_anchor":boolean,"flags":[{"type":"pass"|"warn"|"fail","text":string}],"analysis":string}. Be scientifically accurate. If the molecule is irrelevant to the selected target, say so clearly in analysis and give low scores.`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
