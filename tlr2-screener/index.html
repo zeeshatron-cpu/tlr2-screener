@@ -157,6 +157,11 @@
   .pricing-features li::before { content: '✓  '; color: var(--green); font-weight: 600; }
   .section-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
   .divider { border: none; border-top: 0.5px solid var(--border); margin: 2.5rem 0; }
+  .usage-badge { font-size: 11px; color: var(--text3); background: var(--bg2); border: 0.5px solid var(--border); border-radius: 20px; padding: 3px 10px; cursor: default; }
+  .usage-badge.warn { color: var(--amber); border-color: rgba(245,158,11,0.3); }
+  .usage-badge.over { color: var(--red); border-color: rgba(239,68,68,0.3); }
+  .quota-banner { background: var(--amber-bg); border: 0.5px solid rgba(245,158,11,0.3); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; font-size: 13px; color: var(--amber); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .quota-banner a { color: var(--amber); font-weight:500; }
   .paper-link { display: flex; align-items: center; gap: 12px; background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; text-decoration: none; transition: border-color 0.15s; }
   .paper-link:hover { border-color: var(--border2); }
   .paper-link-icon { width: 36px; height: 36px; background: var(--blue-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
@@ -184,6 +189,7 @@
       <a class="nav-link active" href="#" id="nav-screener" onclick="showPage('screener')">Screener</a>
       <a class="nav-link" href="#" id="nav-batch" onclick="showPage('batch')">Batch</a>
       <a class="nav-link" href="#" id="nav-pricing" onclick="showPage('pricing')">Pricing</a>
+      <span class="usage-badge" id="usage-badge" title="Queries used this month">— / 20</span>
     </div>
   </nav>
 
@@ -373,9 +379,18 @@
         </ul>
       </div>
     </div>
-    <div class="card" style="margin-top:1rem;text-align:center">
-      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Interested in Lab or Biotech tier?</div>
-      <a href="mailto:your@email.com" class="btn btn-primary" style="display:inline-flex">Contact us →</a>
+    <div class="card" style="margin-top:1rem">
+      <div class="card-label">Have an API key?</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input type="text" id="apikey-input" placeholder="tlr2-xxxxxxxxxxxx" style="flex:1;font-family:var(--mono)" />
+        <button class="btn btn-primary" onclick="saveApiKey()">Save</button>
+        <button class="btn" onclick="clearApiKey()">Clear</button>
+      </div>
+      <div id="apikey-status" style="font-size:12px;color:var(--text3)">Key is stored in your browser only and sent with each request.</div>
+    </div>
+    <div class="card" style="margin-top:0.5rem;text-align:center">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Want Lab or Biotech access?</div>
+      <a href="mailto:zeeshatron@gmail.com?subject=TLR2 Screener API Key Request" class="btn btn-primary" style="display:inline-flex">Email for a key →</a>
     </div>
   </div>
 </div>
@@ -397,6 +412,48 @@ const DEMO = [
 ];
 
 let batchResults = [], batchQueue = [], batchProcessed = 0, batchTotal = 0;
+
+// --- API key helpers ---
+function getApiKey() { return localStorage.getItem('tlr2_api_key') || ''; }
+function saveApiKey() {
+  const v = document.getElementById('apikey-input').value.trim();
+  if (v) { localStorage.setItem('tlr2_api_key', v); document.getElementById('apikey-status').textContent = 'Key saved.'; }
+  refreshUsage();
+}
+function clearApiKey() {
+  localStorage.removeItem('tlr2_api_key');
+  document.getElementById('apikey-input').value = '';
+  document.getElementById('apikey-status').textContent = 'Key cleared.';
+  refreshUsage();
+}
+function apiFetch(url, opts = {}) {
+  const key = getApiKey();
+  opts.headers = { 'Content-Type': 'application/json', ...(opts.headers || {}), ...(key ? { 'x-api-key': key } : {}) };
+  return fetch(url, opts);
+}
+
+// --- Usage badge ---
+async function refreshUsage() {
+  try {
+    const res = await apiFetch('/api/usage');
+    const d = await res.json();
+    const badge = document.getElementById('usage-badge');
+    if (d.kv_unavailable || d.limit === null) { badge.textContent = 'unlimited'; badge.className = 'usage-badge'; return; }
+    badge.textContent = `${d.used} / ${d.limit}`;
+    badge.className = 'usage-badge' + (d.used >= d.limit ? ' over' : d.used >= d.limit * 0.8 ? ' warn' : '');
+    if (d.tier !== 'free') badge.title = `${d.tier} plan · ${d.used}/${d.limit} queries this month`;
+  } catch (_) {}
+}
+
+function showQuotaBanner(el) {
+  const existing = document.getElementById('quota-banner');
+  if (existing) return;
+  const banner = document.createElement('div');
+  banner.id = 'quota-banner';
+  banner.className = 'quota-banner';
+  banner.innerHTML = `<span>Monthly free limit reached (20 queries). <a href="#" onclick="showPage('pricing')">Add an API key</a> for more.</span><button class="btn btn-sm" onclick="document.getElementById('quota-banner').remove()">✕</button>`;
+  el.parentNode.insertBefore(banner, el);
+}
 
 function showPage(page) {
   ['landing','screener','batch','pricing'].forEach(p => {
@@ -424,13 +481,15 @@ async function runSingle() {
     // Try ML model first; fall back to LLM if unavailable
     let mlData = null;
     try {
-      const mlRes = await fetch('/api/predict', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name:'Query molecule'})});
+      const mlRes = await apiFetch('/api/predict', {method:'POST', body:JSON.stringify({smiles, name:'Query molecule'})});
       const d = await mlRes.json();
+      if (mlRes.status === 429) { showQuotaBanner(document.getElementById('single-loading')); throw new Error(d.error); }
       if (mlRes.ok && !d.unavailable && !d.error) mlData = d;
-    } catch(_) {}
+    } catch(e) { if (e.message?.includes('limit')) throw e; }
 
-    const llmRes = await fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name:'Query molecule', mode:'single'})});
+    const llmRes = await apiFetch('/api/analyze', {method:'POST', body:JSON.stringify({smiles, name:'Query molecule', mode:'single'})});
     const llm = await llmRes.json();
+    if (llmRes.status === 429) { showQuotaBanner(document.getElementById('single-loading')); throw new Error(llm.error); }
     if (!llmRes.ok || llm.error) throw new Error(llm?.error || 'Analysis failed');
 
     let r;
@@ -459,6 +518,7 @@ async function runSingle() {
       };
     }
     renderSingle(r);
+    refreshUsage();
   } catch(e) {
     document.getElementById('single-loading').classList.add('hidden');
     document.getElementById('single-empty').classList.remove('hidden');
@@ -560,14 +620,16 @@ async function processBatchNext() {
 async function analyzeBatchOne(smiles, name) {
   // Try ML endpoint, fall back to LLM
   try {
-    const res = await fetch('/api/predict', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name})});
+    const res = await apiFetch('/api/predict', {method:'POST', body:JSON.stringify({smiles, name})});
     const d = await res.json();
+    if (res.status === 429) return {molecule_name:name, smiles, input_name:name, verdict:'low', verdict_text:'Quota reached', pIC50:0, IC50_nM:null, mw_estimate:0, logp_estimate:0, tlr2_binding_score:0, pharmacophore_match:0, error:true, quota_exceeded:true};
     if (res.ok && !d.unavailable && !d.error) return {...d, smiles, input_name:name, error:false};
   } catch(_) {}
   // LLM fallback
   try {
-    const res = await fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({smiles, name, mode:'batch'})});
+    const res = await apiFetch('/api/analyze', {method:'POST', body:JSON.stringify({smiles, name, mode:'batch'})});
     const d = await res.json();
+    if (res.status === 429) return {molecule_name:name, smiles, input_name:name, verdict:'low', verdict_text:'Quota reached', pIC50:0, IC50_nM:null, mw_estimate:0, logp_estimate:0, tlr2_binding_score:0, pharmacophore_match:0, error:true, quota_exceeded:true};
     const score = d.tlr2_binding_score || 0;
     const pic50 = parseFloat((2 + (score/100)*7).toFixed(2));
     return {...d, smiles, input_name:name, pIC50:pic50, IC50_nM:parseFloat(Math.pow(10,-pic50+9).toFixed(1)), error:false};
@@ -628,6 +690,18 @@ dz.addEventListener('drop', e=>{
 
 document.getElementById('smiles-input').addEventListener('keydown', e=>{ if(e.key==='Enter') runSingle(); });
 
+// Populate API key field when pricing page opens
+const _origShowPage = showPage;
+window.showPage = function(page) {
+  _origShowPage(page);
+  if (page === 'pricing') {
+    const k = getApiKey();
+    document.getElementById('apikey-input').value = k;
+    document.getElementById('apikey-status').textContent = k ? 'Key loaded from browser storage.' : 'Key is stored in your browser only and sent with each request.';
+  }
+};
+
+refreshUsage();
 showPage('screener');
 </script>
 </body>

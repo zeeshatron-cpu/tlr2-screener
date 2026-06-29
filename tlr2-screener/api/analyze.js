@@ -1,12 +1,26 @@
+import { checkQuota, incrementUsage } from './usage.js';
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { smiles, name, mode } = req.body;
+  if (!smiles) return res.status(400).json({ error: 'SMILES string required' });
 
-  if (!smiles) {
-    return res.status(400).json({ error: 'SMILES string required' });
+  // Quota check
+  let quota;
+  try {
+    quota = await checkQuota(req);
+  } catch (_) {
+    quota = { allowed: true, kv_unavailable: true };
+  }
+  if (!quota.allowed) {
+    return res.status(429).json({
+      error: quota.error || `Monthly limit reached (${quota.limit} queries). Add an API key to continue.`,
+      quota_exceeded: true,
+      used: quota.used,
+      limit: quota.limit,
+      tier: quota.tier,
+    });
   }
 
   const systemPrompt = mode === 'batch'
@@ -30,14 +44,13 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(500).json({ error: data.error?.message || 'API error' });
-    }
+    if (!response.ok) return res.status(500).json({ error: data.error?.message || 'API error' });
 
     const raw = data.content?.[0]?.text || '{}';
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const result = JSON.parse(clean);
+    const result = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    // Count usage only on success
+    try { await incrementUsage(req); } catch (_) {}
 
     return res.status(200).json(result);
   } catch (err) {
