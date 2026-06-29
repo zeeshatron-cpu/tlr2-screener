@@ -808,25 +808,17 @@ async function lookupByName() {
     return;
   }
 
-  // Try PubChem name search, then synonym search as fallback
-  const attempts = [
-    `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(name)}/property/IsomericSMILES/JSON`,
-    `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${encodeURIComponent(name.replace(/[^a-zA-Z0-9]/g,''))}/property/IsomericSMILES/JSON`,
-  ];
-  for (const url of attempts) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) continue;
-      const d = await res.json();
-      const smi = d.PropertyTable?.Properties?.[0]?.IsomericSMILES;
-      if (smi) {
-        document.getElementById('smiles-input').value = smi;
-        btn.textContent = '✓ Found'; btn.style.color = 'var(--green)';
-        setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
-        return;
-      }
-    } catch(_) {}
-  }
+  // Proxy through our own API to avoid PubChem CORS restrictions
+  try {
+    const res = await fetch(`/api/pubchem?name=${encodeURIComponent(name)}`);
+    const d = await res.json();
+    if (res.ok && d.smiles) {
+      document.getElementById('smiles-input').value = d.smiles;
+      btn.textContent = '✓ Found'; btn.style.color = 'var(--green)';
+      setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
+      return;
+    }
+  } catch(_) {}
 
   btn.textContent = 'Not found'; btn.style.color = 'var(--red)';
   setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
