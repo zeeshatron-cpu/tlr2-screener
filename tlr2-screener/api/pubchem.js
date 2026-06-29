@@ -18,9 +18,12 @@ export default async function handler(req, res) {
       if (!r.ok) { errors.push(`${r.status} ${url}`); continue; }
       const d = JSON.parse(body);
       const props = d.PropertyTable?.Properties?.[0];
-      const smi = props?.IsomericSMILES || props?.CanonicalSMILES;
+      // PubChem sometimes returns the key with different casing or nesting
+      const smi = props?.IsomericSMILES || props?.CanonicalSMILES
+        || props?.['isomericsmiles'] || props?.['canonicalsmiles']
+        || Object.values(props || {}).find(v => typeof v === 'string' && v.length > 5 && /[A-Za-z]/.test(v) && /[\(\)=]/.test(v));
       if (smi) return res.status(200).json({ smiles: smi });
-      errors.push(`no SMILES in response: ${body.slice(0,200)}`);
+      errors.push(`props keys: ${JSON.stringify(Object.keys(props||{}))} body: ${body.slice(0,300)}`);
     } catch (e) {
       errors.push(`fetch error: ${e.message}`);
     }
