@@ -35,7 +35,29 @@
     --radius-sm: 3px;
   }
 
-  body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; min-height: 100vh; }
+  [data-theme="dark"] {
+    --bg: #15140f;
+    --bg2: #1c1b15;
+    --bg3: #25241c;
+    --border: rgba(245,242,232,0.08);
+    --border2: rgba(245,242,232,0.14);
+    --text: #ece9df;
+    --text2: #a39d8e;
+    --text3: #6b6558;
+    --blue: #ece9df;
+    --blue-bg: rgba(245,242,232,0.06);
+    --green: #6fbf81;
+    --green-bg: rgba(111,191,129,0.12);
+    --amber: #d9a441;
+    --amber-bg: rgba(217,164,65,0.12);
+    --red: #d97561;
+    --red-bg: rgba(217,117,97,0.12);
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; min-height: 100vh; transition: background 0.15s, color 0.15s; }
+
+  .theme-toggle { font-size: 13px; color: var(--text2); padding: 5px 12px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border2); background: var(--bg2); }
+  .theme-toggle:hover { color: var(--text); background: var(--bg3); }
 
   .page { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
 
@@ -207,13 +229,14 @@
       <a class="nav-link" href="#" id="nav-batch" onclick="showPage('batch')">Batch</a>
       <a class="nav-link" href="#" id="nav-pricing" onclick="showPage('pricing')">Pricing</a>
       <span class="usage-badge" id="usage-badge" title="Queries used this month">— / 20</span>
+      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">Dark</button>
     </div>
   </nav>
 
   <!-- LANDING PAGE -->
   <div id="page-landing" class="hidden">
     <div class="hero">
-      <div class="hero-badge">🧪 Backed by PDB: 2Z7X crystal structure</div>
+      <div class="hero-badge">Backed by PDB: 2Z7X crystal structure</div>
       <div class="hero-title">Predict TLR2 binding<br>in <span>seconds, not days</span></div>
       <div class="hero-sub">AI-powered lipopeptide screening grounded in TLR1-TLR2 structural data. Stop running AutoDock Vina manually — screen your entire candidate library in one batch.</div>
       <div class="hero-cta">
@@ -222,24 +245,30 @@
       </div>
     </div>
 
+    <hr class="divider">
+    <div class="section-title">The problem, in plain terms</div>
+    <div class="card">
+      <div class="analysis-text">
+        New vaccines and immune-boosting drugs often work by waking up a specific receptor on your immune cells called TLR2 — it's one of the sensors your body uses to recognize an infection and start fighting it. Designing a molecule that activates TLR2 correctly is normally slow and expensive: a researcher has to guess at a structure, get it synthesized in a lab (days to weeks, hundreds to thousands of dollars per compound), and then run a wet-lab binding assay just to find out if it works at all. Most guesses fail.
+        <br><br>
+        This tool lets a researcher type or draw a candidate molecule and get a binding-strength estimate in seconds, before paying to synthesize anything. It won't replace the lab assay, but it cuts out most of the dead-end candidates early, so the compounds that do get made are far more likely to work. That means faster, cheaper progress toward better vaccine adjuvants and immune therapies — the kind of research that eventually shows up as the vaccines and treatments people actually get at the doctor's office.
+      </div>
+    </div>
+
     <div class="feature-grid">
       <div class="feature-card">
-        <div class="feature-icon">⚡</div>
         <div class="feature-title">Instant screening</div>
         <div class="feature-desc">Get binding scores, pharmacophore match, and drug-likeness flags in under 5 seconds per compound.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🎯</div>
         <div class="feature-title">2Z7X-grounded</div>
         <div class="feature-desc">Pharmacophore model derived from the TLR1-TLR2-Pam3CSK4 crystal structure. Asn294 and Phe349 contacts scored explicitly.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📦</div>
         <div class="feature-title">Batch CSV upload</div>
         <div class="feature-desc">Upload up to 20 compounds at once. Download results as a clean CSV for downstream analysis.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🔬</div>
         <div class="feature-title">Research-grade SAR</div>
         <div class="feature-desc">Triacylated, diacylated, and non-lipopeptide classes are scored based on published structure-activity relationships.</div>
       </div>
@@ -248,7 +277,7 @@
     <hr class="divider">
     <div class="section-title">Scientific basis</div>
     <a class="paper-link" href="#" onclick="alert('Paper link — add your bioRxiv DOI here once published')">
-      <div class="paper-link-icon">📄</div>
+      <div class="paper-link-icon">P</div>
       <div>
         <div class="paper-link-title">Rational Design of Pam3Cys-SNFKK: A GIPL-Inspired Lipopeptide Targeting the TLR2 Binding Interface</div>
         <div class="paper-link-sub">Ahmed Zeeshan · Independent Research · 2025</div>
@@ -280,7 +309,7 @@
       <div class="card-label">SMILES input</div>
       <div class="row" style="margin-bottom:8px">
         <input type="text" id="smiles-input" placeholder="Paste SMILES or use lookup / draw above..." style="flex:1" />
-        <button class="btn" onclick="openDrawer()" title="Draw molecule">✏️ Draw</button>
+        <button class="btn" onclick="openDrawer()" title="Draw molecule">Draw</button>
         <button class="btn btn-primary" onclick="runSingle()">Analyze →</button>
       </div>
       <div class="pills">
@@ -312,7 +341,7 @@
   <div id="page-batch" class="hidden">
     <div class="card">
       <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-        <div class="dz-icon">📂</div>
+        <div class="dz-icon">⌃</div>
         <div class="dz-label">Drop CSV here or click to browse</div>
         <div class="dz-sub">Max 20 compounds · Required column: <span class="mono">smiles</span> · Optional: <span class="mono">name</span></div>
       </div>
@@ -344,7 +373,7 @@
       <div class="row" style="justify-content:space-between;margin-bottom:12px">
         <span style="font-size:13px;font-weight:500">Results</span>
         <div class="row">
-          <button class="btn btn-sm btn-primary" onclick="downloadCSV()">⬇ Download CSV</button>
+          <button class="btn btn-sm btn-primary" onclick="downloadCSV()">Download CSV</button>
           <button class="btn btn-sm" onclick="resetBatch()">New batch</button>
         </div>
       </div>
@@ -436,7 +465,7 @@
   <div class="modal">
     <div class="modal-header">
       <span>Draw molecule</span>
-      <button class="btn btn-sm" onclick="closeDrawer()">✕</button>
+      <button class="btn btn-sm" onclick="closeDrawer()">Close</button>
     </div>
     <div id="jsme-container"></div>
     <div class="modal-footer">
@@ -463,6 +492,23 @@ const DEMO = [
 ];
 
 let batchResults = [], batchQueue = [], batchProcessed = 0, batchTotal = 0;
+
+// --- Theme ---
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-toggle').textContent = t === 'dark' ? 'Light' : 'Dark';
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('tlr2_theme', next);
+  applyTheme(next);
+}
+(function initTheme() {
+  const saved = localStorage.getItem('tlr2_theme');
+  const theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(theme);
+})();
 
 // --- Target selector ---
 const TARGET_DESCS = {
@@ -517,7 +563,7 @@ function showQuotaBanner(el) {
   const banner = document.createElement('div');
   banner.id = 'quota-banner';
   banner.className = 'quota-banner';
-  banner.innerHTML = `<span>Monthly free limit reached (20 queries). <a href="#" onclick="showPage('pricing')">Add an API key</a> for more.</span><button class="btn btn-sm" onclick="document.getElementById('quota-banner').remove()">✕</button>`;
+  banner.innerHTML = `<span>Monthly free limit reached (20 queries). <a href="#" onclick="showPage('pricing')">Add an API key</a> for more.</span><button class="btn btn-sm" onclick="document.getElementById('quota-banner').remove()">Close</button>`;
   el.parentNode.insertBefore(banner, el);
 }
 
