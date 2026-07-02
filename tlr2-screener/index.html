@@ -6,6 +6,7 @@
 <title>ImmunoBind — Innate Immune Receptor Screening</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://jsme-editor.github.io/dist/jsme/jsme.nocache.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -388,9 +389,57 @@ tr:hover td { background: var(--bg3); }
 .receptor-card-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
 
 @media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+/* ─── GLOBAL BACKGROUND CANVAS ──────────────────────────── */
+#bg-canvas {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+}
+body > *:not(#bg-canvas) { position: relative; z-index: 1; }
+
+/* ─── SCROLL SHADOW ON NAV ───────────────────────────────── */
+nav { transition: background 0.2s, box-shadow 0.2s; }
+nav.scrolled { box-shadow: 0 1px 20px rgba(0,0,0,0.4); }
+
+/* ─── ACCURACY STATS BAR ─────────────────────────────────── */
+.accuracy-bar {
+  display: flex; justify-content: center; gap: 0;
+  background: var(--border); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  margin: 3rem auto 0; max-width: 860px;
+}
+.accuracy-stat {
+  flex: 1; background: var(--bg2); padding: 1.25rem 1rem; text-align: center;
+  border-right: 1px solid var(--border);
+}
+.accuracy-stat:last-child { border-right: none; }
+.accuracy-val {
+  font-size: 28px; font-weight: 800; letter-spacing: -0.03em;
+  color: var(--accent); line-height: 1;
+}
+.accuracy-label { font-size: 11px; color: var(--text3); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.07em; }
+@media (max-width: 560px) { .accuracy-bar { flex-wrap: wrap; } .accuracy-stat { flex: 0 0 50%; border-bottom: 1px solid var(--border); } }
+
+/* ─── 3D MOLECULE CANVAS ─────────────────────────────────── */
+#mol-canvas {
+  position: absolute; right: 0; top: 0; bottom: 0;
+  width: 45%; opacity: 0.9; pointer-events: none;
+}
+.hero-section { position: relative; }
+@media (max-width: 768px) { #mol-canvas { display: none; } }
+
+/* ─── SCROLL FADE IN ─────────────────────────────────────── */
+.fade-up {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
 </style>
 </head>
 <body>
+
+<!-- Global particle background (fixed, always visible) -->
+<canvas id="bg-canvas"></canvas>
 
 <!-- ─── NAV ─────────────────────────────────────────────── -->
 <nav>
@@ -408,9 +457,9 @@ tr:hover td { background: var(--bg3); }
 
 <!-- ─── LANDING PAGE ─────────────────────────────────────── -->
 <div id="page-landing" class="hidden">
-  <canvas class="hero-canvas" id="hero-canvas"></canvas>
 
   <div class="hero-section">
+    <canvas id="mol-canvas"></canvas>
     <div class="hero-badge">TLR1–10 · STING · cGAS · RIG-I · MDA5</div>
     <h1 class="hero-title">
       Screen immune receptors<br>in <span class="accent-word">seconds, not days.</span>
@@ -426,6 +475,12 @@ tr:hover td { background: var(--bg3); }
       <button class="btn btn-primary" onclick="showPage('screener')">Try the screener →</button>
       <button class="btn btn-ghost" onclick="showPage('batch')">Batch upload</button>
     </div>
+    <div class="accuracy-bar" style="width:100%;max-width:700px;margin-top:3rem">
+      <div class="accuracy-stat"><div class="accuracy-val">R²=0.71</div><div class="accuracy-label">ML model accuracy</div></div>
+      <div class="accuracy-stat"><div class="accuracy-val">14</div><div class="accuracy-label">Receptors covered</div></div>
+      <div class="accuracy-stat"><div class="accuracy-val">&lt;2s</div><div class="accuracy-label">Per analysis</div></div>
+      <div class="accuracy-stat"><div class="accuracy-val">20</div><div class="accuracy-label">Free queries/month</div></div>
+    </div>
   </div>
 
   <div class="landing-inner">
@@ -434,7 +489,7 @@ tr:hover td { background: var(--bg3); }
       <div class="section-header-title">Every major innate immune sensor</div>
     </div>
 
-    <div class="receptor-grid">
+    <div class="receptor-grid fade-up">
       <div class="receptor-card">
         <div class="receptor-card-name">Toll-like receptors (TLR1–10)</div>
         <div class="receptor-card-desc">The primary bacterial and viral sensors on immune cells. TLR1/2 and TLR2/6 detect lipopeptides; TLR4 detects LPS; TLR3/7/8/9 detect viral nucleic acids. Heavily targeted for vaccine adjuvants and sepsis drugs.</div>
@@ -458,7 +513,7 @@ tr:hover td { background: var(--bg3); }
     <div class="section-header">
       <div class="section-header-label">Scientific basis</div>
     </div>
-    <a class="paper-link" href="#" onclick="alert('Add your bioRxiv DOI here once published')">
+    <a class="paper-link fade-up" href="#" onclick="alert('Add your bioRxiv DOI here once published')">
       <div class="paper-link-icon">P</div>
       <div>
         <div class="paper-link-title">Rational Design of Pam3Cys-SNFKK: A GIPL-Inspired Lipopeptide Targeting the TLR2 Binding Interface</div>
@@ -730,75 +785,196 @@ tr:hover td { background: var(--bg3); }
 </div>
 
 <script>
-// ─── PARTICLE CANVAS ────────────────────────────────────────
-(function initParticles() {
-  const canvas = document.getElementById('hero-canvas');
+// ─── GLOBAL BACKGROUND CANVAS (fixed, always visible) ────────
+(function initBgCanvas() {
+  const canvas = document.getElementById('bg-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  let W, H, particles = [], raf;
+  let W, H, particles = [];
 
   function resize() {
-    W = canvas.width = canvas.offsetWidth;
-    H = canvas.height = canvas.offsetHeight;
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
   }
 
   function mkParticle() {
     return {
       x: Math.random() * W, y: Math.random() * H,
-      r: Math.random() * 1.4 + 0.3,
-      vx: (Math.random() - 0.5) * 0.22,
-      vy: (Math.random() - 0.5) * 0.22,
-      a: Math.random() * 0.5 + 0.1,
+      r: Math.random() * 1.2 + 0.2,
+      vx: (Math.random() - 0.5) * 0.18,
+      vy: (Math.random() - 0.5) * 0.18,
+      a: Math.random() * 0.45 + 0.08,
     };
-  }
-
-  function init() {
-    resize();
-    const n = Math.floor((W * H) / 8000);
-    particles = Array.from({length: n}, mkParticle);
   }
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
 
-    // Glowing orb behind hero text
-    const cx = W * 0.5, cy = H * 0.42;
-    const t = Date.now() / 4000;
-    const ox = Math.sin(t) * 40, oy = Math.cos(t * 0.7) * 30;
-    const grad = ctx.createRadialGradient(cx+ox, cy+oy, 0, cx+ox, cy+oy, isDark ? W*0.38 : W*0.28);
+    // Animated radial glow orb
+    const t = Date.now() / 5000;
+    const cx = W * 0.5 + Math.sin(t) * 60;
+    const cy = H * 0.38 + Math.cos(t * 0.7) * 40;
+    const r = Math.min(W, H) * 0.55;
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
     if (isDark) {
-      grad.addColorStop(0, 'rgba(0,180,255,0.13)');
-      grad.addColorStop(0.4, 'rgba(100,40,220,0.07)');
+      grad.addColorStop(0, 'rgba(0,190,255,0.10)');
+      grad.addColorStop(0.35, 'rgba(100,30,230,0.055)');
       grad.addColorStop(1, 'rgba(0,0,0,0)');
     } else {
-      grad.addColorStop(0, 'rgba(0,153,181,0.07)');
+      grad.addColorStop(0, 'rgba(0,153,181,0.06)');
       grad.addColorStop(1, 'rgba(0,0,0,0)');
     }
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, W, H);
 
-    // Particles
+    // Floating particles
     particles.forEach(p => {
       p.x += p.vx; p.y += p.vy;
-      if (p.x < -4) p.x = W+4;
-      if (p.x > W+4) p.x = -4;
-      if (p.y < -4) p.y = H+4;
-      if (p.y > H+4) p.y = -4;
+      if (p.x < -4) p.x = W + 4;
+      if (p.x > W + 4) p.x = -4;
+      if (p.y < -4) p.y = H + 4;
+      if (p.y > H + 4) p.y = -4;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = isDark
-        ? `rgba(180,190,230,${p.a * 0.55})`
-        : `rgba(0,100,130,${p.a * 0.3})`;
+        ? `rgba(160,170,220,${p.a * 0.5})`
+        : `rgba(0,100,130,${p.a * 0.25})`;
       ctx.fill();
     });
 
-    raf = requestAnimationFrame(draw);
+    requestAnimationFrame(draw);
   }
 
-  window.addEventListener('resize', () => { resize(); });
-  init();
+  resize();
+  particles = Array.from({ length: Math.floor((W * H) / 7000) }, mkParticle);
+  window.addEventListener('resize', () => {
+    resize();
+    if (particles.length < 30) particles = Array.from({ length: Math.floor((W * H) / 7000) }, mkParticle);
+  });
   draw();
+})();
+
+// ─── SCROLL: NAV SHADOW ──────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 10);
+}, { passive: true });
+
+// ─── SCROLL: FADE-UP SECTIONS ────────────────────────────────
+(function initFadeUp() {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+})();
+
+// ─── 3D MOLECULE (Three.js) ───────────────────────────────────
+(function initMolecule() {
+  if (typeof THREE === 'undefined') return;
+  const canvas = document.getElementById('mol-canvas');
+  if (!canvas) return;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+  camera.position.set(0, 0, 9);
+
+  // Soft lighting
+  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  const dl = new THREE.DirectionalLight(0x00d4e8, 1.2);
+  dl.position.set(3, 4, 5); scene.add(dl);
+  const dl2 = new THREE.DirectionalLight(0x7c3aed, 0.6);
+  dl2.position.set(-4, -2, 2); scene.add(dl2);
+
+  // CPK-style atom colors
+  const COLORS = { C: 0x888888, N: 0x4488ff, O: 0xff4444, S: 0xf0d020, H: 0xdddddd };
+  const RADIUS = { C: 0.32, N: 0.3, O: 0.28, S: 0.36, H: 0.22 };
+
+  // Simplified Pam3CSK4-inspired molecule layout (stylized)
+  const atoms = [
+    // Lipid tail suggestion (C chain)
+    {e:'C', p:[0,0,0]}, {e:'C', p:[0.75,0.3,0.1]}, {e:'C', p:[1.5,0,-0.1]},
+    {e:'C', p:[2.25,0.3,0.1]}, {e:'C', p:[3.0,0,-0.1]},
+    // Branch: ester O
+    {e:'O', p:[3.6,0.55,0.5]}, {e:'O', p:[4.0,-0.3,-0.2]},
+    // Cys backbone
+    {e:'C', p:[3.7,-1.0,-0.6]}, {e:'S', p:[3.0,-1.8,-1.2]},
+    {e:'C', p:[2.1,-1.2,-0.8]},
+    // Amide N
+    {e:'N', p:[1.3,-0.8,-0.4]},
+    {e:'C', p:[0.5,-1.4,-0.9]},
+    {e:'O', p:[-0.2,-0.9,-0.5]},
+    // Second acyl chain
+    {e:'C', p:[0.3,-2.2,-1.4]}, {e:'C', p:[-0.4,-2.8,-0.9]},
+    {e:'C', p:[-1.1,-2.3,-0.4]}, {e:'C', p:[-1.8,-2.9,0.1]},
+  ];
+
+  // Centre the molecule
+  const cx = atoms.reduce((s,a)=>s+a.p[0],0)/atoms.length;
+  const cy = atoms.reduce((s,a)=>s+a.p[1],0)/atoms.length;
+  const cz = atoms.reduce((s,a)=>s+a.p[2],0)/atoms.length;
+  atoms.forEach(a => { a.p[0]-=cx; a.p[1]-=cy; a.p[2]-=cz; });
+
+  const molGroup = new THREE.Group();
+
+  // Create atom spheres
+  const sphereGeo = new THREE.SphereGeometry(1, 24, 24);
+  atoms.forEach(a => {
+    const mat = new THREE.MeshPhongMaterial({
+      color: COLORS[a.e] || 0x888888,
+      shininess: 90,
+      emissive: COLORS[a.e] ? new THREE.Color(COLORS[a.e]).multiplyScalar(0.12) : 0,
+    });
+    const mesh = new THREE.Mesh(sphereGeo, mat);
+    mesh.position.set(...a.p);
+    mesh.scale.setScalar(RADIUS[a.e] || 0.3);
+    molGroup.add(mesh);
+  });
+
+  // Bond connectivity (by index pairs)
+  const bonds = [
+    [0,1],[1,2],[2,3],[3,4],[4,5],[4,6],[6,7],[7,8],[8,9],[9,10],
+    [10,11],[11,12],[11,13],[13,14],[14,15],[15,16],
+  ];
+
+  function makeBond(p1, p2) {
+    const dir = new THREE.Vector3().subVectors(new THREE.Vector3(...p2), new THREE.Vector3(...p1));
+    const len = dir.length();
+    const mid = new THREE.Vector3(...p1).add(dir.clone().multiplyScalar(0.5));
+    const geo = new THREE.CylinderGeometry(0.07, 0.07, len, 8);
+    const mat = new THREE.MeshPhongMaterial({ color: 0xaaaaaa, shininess: 30, transparent: true, opacity: 0.7 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.copy(mid);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone().normalize());
+    return mesh;
+  }
+
+  bonds.forEach(([i,j]) => molGroup.add(makeBond(atoms[i].p, atoms[j].p)));
+
+  scene.add(molGroup);
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (w && h) {
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+  }
+  resize();
+  new ResizeObserver(resize).observe(canvas);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = Date.now() * 0.0004;
+    molGroup.rotation.y = t;
+    molGroup.rotation.x = Math.sin(t * 0.4) * 0.25;
+    renderer.render(scene, camera);
+  }
+  animate();
 })();
 
 // ─── THEME ──────────────────────────────────────────────────
