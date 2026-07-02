@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TLR2 Screener — Lipopeptide Binding Prediction</title>
+<title>ImmunoBind — Innate Immune Receptor Screening</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://jsme-editor.github.io/dist/jsme/jsme.nocache.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -193,6 +193,14 @@
   .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
   #jsme-container { background: #fff; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
 
+  /* LLM-only badge */
+  .llm-badge { display: inline-flex; align-items: center; font-size: 11px; color: var(--amber); background: var(--amber-bg); border: 1px solid rgba(179,121,31,0.25); border-radius: 20px; padding: 2px 9px; margin-left: 8px; vertical-align: middle; }
+
+  /* Target selector groups */
+  .target-group { margin-bottom: 10px; }
+  .target-group-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+  .target-pills-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
   /* NAME LOOKUP */
   .lookup-row { display: flex; gap: 6px; margin-bottom: 8px; }
 
@@ -222,7 +230,7 @@
   <nav>
     <a class="nav-logo" href="#" onclick="showPage('landing')">
       <div class="nav-logo-icon">○</div>
-      <span class="nav-logo-name">TLR2 Screener</span>
+      <span class="nav-logo-name">ImmunoBind</span>
     </a>
     <div class="nav-links">
       <a class="nav-link active" href="#" id="nav-screener" onclick="showPage('screener')">Screener</a>
@@ -236,9 +244,9 @@
   <!-- LANDING PAGE -->
   <div id="page-landing" class="hidden">
     <div class="hero">
-      <div class="hero-badge">Backed by PDB: 2Z7X crystal structure</div>
-      <div class="hero-title">Predict TLR2 binding<br>in <span>seconds, not days</span></div>
-      <div class="hero-sub">AI-powered lipopeptide screening grounded in TLR1-TLR2 structural data. Stop running AutoDock Vina manually — screen your entire candidate library in one batch.</div>
+      <div class="hero-badge">TLR1–10 · STING · cGAS · RIG-I · MDA5</div>
+      <div class="hero-title">Screen immune receptor<br>binding in <span>seconds, not days</span></div>
+      <div class="hero-sub">AI-powered screening for innate immune receptors — TLRs, STING, cGAS, RIG-I, and more. Stop running AutoDock Vina manually; filter your entire candidate library before you synthesize a thing.</div>
       <div class="hero-cta">
         <button class="btn btn-primary" onclick="showPage('screener')">Try the screener →</button>
         <button class="btn" onclick="showPage('batch')">Batch upload</button>
@@ -249,28 +257,29 @@
     <div class="section-title">The problem, in plain terms</div>
     <div class="card">
       <div class="analysis-text">
-        New vaccines and immune-boosting drugs often work by waking up a specific receptor on your immune cells called TLR2 — it's one of the sensors your body uses to recognize an infection and start fighting it. Designing a molecule that activates TLR2 correctly is normally slow and expensive: a researcher has to guess at a structure, get it synthesized in a lab (days to weeks, hundreds to thousands of dollars per compound), and then run a wet-lab binding assay just to find out if it works at all. Most guesses fail.
+        Your immune system runs on sensors. When a cell spots a virus, a bacterium, or a foreign molecule, it's usually one of a family of proteins called pattern recognition receptors (PRRs) that trips the alarm and starts the immune response. Researchers want to activate or block these sensors deliberately — to make vaccines work better, to fight cancer, or to treat autoimmune disease.
         <br><br>
-        This tool lets a researcher type or draw a candidate molecule and get a binding-strength estimate in seconds, before paying to synthesize anything. It won't replace the lab assay, but it cuts out most of the dead-end candidates early, so the compounds that do get made are far more likely to work. That means faster, cheaper progress toward better vaccine adjuvants and immune therapies — the kind of research that eventually shows up as the vaccines and treatments people actually get at the doctor's office.
+        The problem is that testing whether a molecule hits a specific receptor requires synthesizing it in a chemistry lab first — days to weeks of work, hundreds to thousands of dollars per compound, most of which fail. ImmunoBind gives you a binding-strength estimate in seconds before you spend a cent on synthesis. It won't replace the lab assay, but it cuts dead-end candidates out early so the compounds that do get made are far more likely to work.
       </div>
     </div>
 
+    <div class="section-title" style="margin-top:2rem">Receptor groups</div>
     <div class="feature-grid">
       <div class="feature-card">
-        <div class="feature-title">Instant screening</div>
-        <div class="feature-desc">Get binding scores, pharmacophore match, and drug-likeness flags in under 5 seconds per compound.</div>
+        <div class="feature-title">Toll-like receptors (TLR1–10)</div>
+        <div class="feature-desc">The primary bacterial and viral sensors on immune cells. TLR1/2 and TLR2/6 recognize lipopeptides from bacteria; TLR4 recognizes LPS (the outer membrane of gram-negative bacteria); TLR3/7/8/9 detect viral nucleic acids. Heavily targeted for vaccine adjuvants and sepsis drugs.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-title">2Z7X-grounded</div>
-        <div class="feature-desc">Pharmacophore model derived from the TLR1-TLR2-Pam3CSK4 crystal structure. Asn294 and Phe349 contacts scored explicitly.</div>
+        <div class="feature-title">STING &amp; cGAS</div>
+        <div class="feature-desc">STING (Stimulator of Interferon Genes) and its upstream sensor cGAS detect foreign or misplaced DNA inside a cell — a sign of viral infection or a cancer mutation. STING agonists are one of the most active areas in cancer immunotherapy right now, with several compounds in clinical trials.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-title">Batch CSV upload</div>
-        <div class="feature-desc">Upload up to 20 compounds at once. Download results as a clean CSV for downstream analysis.</div>
+        <div class="feature-title">RIG-I &amp; MDA5</div>
+        <div class="feature-desc">These sensors sit inside the cell and detect double-stranded RNA — the kind that appears when a virus is replicating. Activating RIG-I or MDA5 triggers a strong antiviral interferon response. Drug candidates targeting these receptors are being explored for influenza, COVID-19, and RSV.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-title">Research-grade SAR</div>
-        <div class="feature-desc">Triacylated, diacylated, and non-lipopeptide classes are scored based on published structure-activity relationships.</div>
+        <div class="feature-title">Batch &amp; SAR support</div>
+        <div class="feature-desc">Upload a CSV of up to 20 compounds for any receptor target. Download results as a clean CSV for downstream SAR analysis. Name-to-SMILES lookup and an in-browser molecule drawer included.</div>
       </div>
     </div>
 
@@ -297,13 +306,47 @@
     </div>
     <div class="card">
       <div class="card-label">Target receptor</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">
-        <button class="pill target-pill active" id="target-TLR1/2" onclick="setTarget('TLR1/2')">TLR1/2 — Triacyl lipopeptides</button>
-        <button class="pill target-pill" id="target-TLR2/6" onclick="setTarget('TLR2/6')">TLR2/6 — Diacyl lipopeptides</button>
-        <button class="pill target-pill" id="target-TLR4" onclick="setTarget('TLR4')">TLR4 — LPS / Lipid A</button>
-        <button class="pill target-pill" id="target-general" onclick="setTarget('general')">General binding</button>
+
+      <div class="target-group">
+        <div class="target-group-label">Toll-like receptors</div>
+        <div class="target-pills-row">
+          <button class="pill target-pill active" id="target-TLR1/2" onclick="setTarget('TLR1/2')">TLR1/2</button>
+          <button class="pill target-pill" id="target-TLR2/6" onclick="setTarget('TLR2/6')">TLR2/6</button>
+          <button class="pill target-pill" id="target-TLR3" onclick="setTarget('TLR3')">TLR3</button>
+          <button class="pill target-pill" id="target-TLR4" onclick="setTarget('TLR4')">TLR4</button>
+          <button class="pill target-pill" id="target-TLR5" onclick="setTarget('TLR5')">TLR5</button>
+          <button class="pill target-pill" id="target-TLR6" onclick="setTarget('TLR6')">TLR6</button>
+          <button class="pill target-pill" id="target-TLR7" onclick="setTarget('TLR7')">TLR7</button>
+          <button class="pill target-pill" id="target-TLR8" onclick="setTarget('TLR8')">TLR8</button>
+          <button class="pill target-pill" id="target-TLR9" onclick="setTarget('TLR9')">TLR9</button>
+          <button class="pill target-pill" id="target-TLR10" onclick="setTarget('TLR10')">TLR10</button>
+        </div>
       </div>
-      <div id="target-desc" style="font-size:11px;color:var(--text3)">Pam3CSK4-type ligands binding TLR1-TLR2 heterodimer (PDB: 2Z7X)</div>
+
+      <div class="target-group">
+        <div class="target-group-label">DNA sensors</div>
+        <div class="target-pills-row">
+          <button class="pill target-pill" id="target-STING" onclick="setTarget('STING')">STING</button>
+          <button class="pill target-pill" id="target-cGAS" onclick="setTarget('cGAS')">cGAS</button>
+        </div>
+      </div>
+
+      <div class="target-group">
+        <div class="target-group-label">RNA sensors</div>
+        <div class="target-pills-row">
+          <button class="pill target-pill" id="target-RIG-I" onclick="setTarget('RIG-I')">RIG-I</button>
+          <button class="pill target-pill" id="target-MDA5" onclick="setTarget('MDA5')">MDA5</button>
+        </div>
+      </div>
+
+      <div class="target-group" style="margin-bottom:0">
+        <div class="target-group-label">General</div>
+        <div class="target-pills-row">
+          <button class="pill target-pill" id="target-general" onclick="setTarget('general')">General PRR binding</button>
+        </div>
+      </div>
+
+      <div id="target-desc" style="font-size:11px;color:var(--text3);margin-top:10px">Pam3CSK4-type triacyl lipopeptides binding TLR1-TLR2 heterodimer (PDB: 2Z7X)</div>
     </div>
     <div class="card">
       <div class="card-label">SMILES input</div>
@@ -333,7 +376,7 @@
     </div>
 
     <div id="single-empty" class="card">
-      <div class="empty">Enter a SMILES string above to analyze TLR2 binding potential</div>
+      <div class="empty">Enter a SMILES string above and select a receptor to analyze binding potential</div>
     </div>
   </div>
 
@@ -404,7 +447,7 @@
   <div id="page-pricing" class="hidden">
     <div style="text-align:center;margin-bottom:2rem">
       <div style="font-size:24px;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px">Simple pricing</div>
-      <div style="font-size:14px;color:var(--text2)">For academic labs and small biotechs screening TLR2 candidates</div>
+      <div style="font-size:14px;color:var(--text2)">For academic labs and small biotechs screening innate immune receptor candidates</div>
     </div>
     <div class="pricing-grid">
       <div class="pricing-card">
@@ -512,11 +555,26 @@ function toggleTheme() {
 
 // --- Target selector ---
 const TARGET_DESCS = {
-  'TLR1/2': 'Pam3CSK4-type ligands binding TLR1-TLR2 heterodimer (PDB: 2Z7X)',
-  'TLR2/6': 'FSL-1/MALP-2-type diacyl lipopeptides binding TLR2-TLR6 heterodimer',
-  'TLR4':   'LPS/Lipid A analogues binding TLR4-MD2 complex (PDB: 3FXI)',
-  'general':'General PRR binding — no specific receptor assumed',
+  'TLR1/2':  'Pam3CSK4-type triacyl lipopeptides binding TLR1-TLR2 heterodimer (PDB: 2Z7X)',
+  'TLR2/6':  'FSL-1/MALP-2-type diacyl lipopeptides binding TLR2-TLR6 heterodimer',
+  'TLR3':    'dsRNA mimetics (poly I:C analogues) binding TLR3 ectodomain (PDB: 3CIY)',
+  'TLR4':    'LPS/Lipid A analogues binding TLR4-MD2 complex (PDB: 3FXI)',
+  'TLR5':    'Flagellin-derived peptides binding TLR5 (PDB: 3J0A)',
+  'TLR6':    'Diacyl lipopeptides — TLR6 alone or in TLR2-TLR6 context',
+  'TLR7':    'ssRNA / imidazoquinoline analogues (imiquimod, resiquimod) binding TLR7 (PDB: 5GMH)',
+  'TLR8':    'ssRNA / small-molecule agonists binding TLR8 (PDB: 3W3J)',
+  'TLR9':    'CpG oligonucleotide analogues binding TLR9 (PDB: 3WPB)',
+  'TLR10':   'TLR10 — ligand poorly characterised; diacyl/triacyl lipopeptides in TLR2-TLR10 context',
+  'STING':   'Cyclic dinucleotides (cGAMP, DMXAA analogues) binding STING CDN-binding domain (PDB: 4LOH)',
+  'cGAS':    'Cyclic-GMP-AMP synthase — substrates/inhibitors of the catalytic pocket (PDB: 4KM5)',
+  'RIG-I':   '5′-triphosphate dsRNA mimetics / small-molecule agonists of RIG-I (PDB: 4A36)',
+  'MDA5':    'Long dsRNA ligands / agonists of MDA5 filament assembly (PDB: 4GL2)',
+  'general': 'General innate immune PRR binding — no specific receptor assumed',
 };
+
+// Receptors with a trained ML model (pIC50 from XGBoost)
+const TARGET_HAS_ML = new Set(['TLR1/2', 'TLR2/6', 'TLR4']);
+
 let _target = 'TLR1/2';
 function setTarget(t) {
   _target = t;
@@ -668,7 +726,7 @@ function renderSingle(r) {
       <span class="contact-badge ${r.phe349_contact?'on':''}">Phe349 contact</span>
       <span class="contact-badge ${r.has_lipid_anchor?'on':''}">Lipid anchor</span>
     </div>
-    <div style="margin-top:10px;font-size:11px;color:var(--text3)">${r.model_name==='LLM'?'Score from LLM (ML endpoint unavailable on Vercel)':`Score from ${r.model_name||'ML'} model (R²=${r.model_r2||'—'}) · pIC50=${(r.pIC50||0).toFixed(2)}`}</div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3)">${r.model_name==='LLM'?`Score from AI analysis${TARGET_HAS_ML.has(_target)?'':' <span class=\'llm-badge\'>LLM only — no ML model for this receptor yet</span>'}`:`Score from ${r.model_name||'ML'} model (R²=${r.model_r2||'—'}) · pIC50=${(r.pIC50||0).toFixed(2)}`}</div>
   `;
 
   document.getElementById('single-analysis').innerHTML = `
