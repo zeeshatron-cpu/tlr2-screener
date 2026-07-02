@@ -318,121 +318,153 @@ tr:hover td { background: var(--bg3); }
 /* ─── LANDING ─────────────────────────────────────────── */
 #page-landing { position: relative; overflow: hidden; }
 
-.hero-canvas {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: 0;
-}
-
+/* HERO — two-column split */
 .hero-section {
   position: relative; z-index: 1;
-  min-height: 100vh;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; padding: calc(var(--nav-h) + 2rem) 1.5rem 3rem;
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: 100vh; align-items: center;
+  max-width: 1200px; margin: 0 auto;
+  padding: var(--nav-h) 3rem 0 3rem;
 }
+@media (max-width: 900px) {
+  .hero-section { grid-template-columns: 1fr; padding: calc(var(--nav-h) + 2.5rem) 1.5rem 3rem; text-align: center; }
+}
+.hero-left { padding: 4rem 2.5rem 4rem 0; }
+@media (max-width: 900px) { .hero-left { padding: 0; } }
+.hero-right { position: relative; min-height: 520px; align-self: stretch; }
+@media (max-width: 900px) { .hero-right { display: none; } }
+#mol-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
 .hero-badge {
   display: inline-flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 500; color: var(--accent);
+  font-size: 11px; font-weight: 600; color: var(--accent);
   background: var(--accent-dim); border: 1px solid var(--accent-border);
-  padding: 5px 16px; border-radius: 20px; margin-bottom: 2rem;
-  letter-spacing: 0.01em;
+  padding: 5px 16px; border-radius: 20px; margin-bottom: 1.5rem;
+  letter-spacing: 0.04em; text-transform: uppercase;
 }
-
 .hero-title {
-  font-size: clamp(40px, 8vw, 76px);
-  font-weight: 800; letter-spacing: -0.03em;
-  line-height: 1.08; color: var(--text);
-  margin-bottom: 1.5rem; max-width: 860px;
+  font-size: clamp(32px, 4.2vw, 60px);
+  font-weight: 900; letter-spacing: -0.035em; line-height: 1.07;
+  color: var(--text); margin-bottom: 1.25rem;
 }
 .hero-title .accent-word {
-  background: linear-gradient(90deg, var(--accent) 0%, #7c3aed 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--purple) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
+.hero-sub { font-size: 15px; color: var(--text2); margin-bottom: 2rem; line-height: 1.8; max-width: 480px; }
+@media (max-width: 900px) { .hero-sub { max-width: 100%; margin-left: auto; margin-right: auto; } }
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-cta .btn-primary { font-size: 14px; padding: 11px 26px; border-radius: 8px; }
+.hero-cta .btn-ghost { font-size: 14px; padding: 11px 26px; border-radius: 8px; }
+@media (max-width: 900px) { .hero-cta { justify-content: center; } }
 
-.hero-sub {
-  font-size: 17px; color: var(--text2); max-width: 560px;
-  margin: 0 auto 1rem; line-height: 1.75;
-}
-.hero-sub2 {
-  font-size: 14px; color: var(--text3); max-width: 560px;
-  margin: 0 auto 2.5rem; line-height: 1.75;
-}
-
-.hero-cta {
-  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
-  margin-bottom: 0;
-}
-.hero-cta .btn-primary {
-  font-size: 14px; padding: 11px 24px; border-radius: 8px;
-}
-.hero-cta .btn-ghost {
-  font-size: 14px; padding: 11px 24px; border-radius: 8px;
-}
-
-/* landing inner content */
-.landing-inner {
-  position: relative; z-index: 1;
-  max-width: 860px; margin: 0 auto; padding: 0 1.5rem 5rem;
-}
-
-.receptor-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr);
-  gap: 1px; background: var(--border);
-  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
-  margin-bottom: 1px;
-}
-@media (max-width: 560px) { .receptor-grid { grid-template-columns: 1fr; } }
-
-.receptor-card { background: var(--bg2); padding: 1.5rem; }
-.receptor-card-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
-.receptor-card-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
-
-@media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } }
-
-/* ─── GLOBAL BACKGROUND CANVAS ──────────────────────────── */
-#bg-canvas {
-  position: fixed; inset: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: 0;
-}
-body > *:not(#bg-canvas) { position: relative; z-index: 1; }
-
-/* ─── SCROLL SHADOW ON NAV ───────────────────────────────── */
-nav { transition: background 0.2s, box-shadow 0.2s; }
-nav.scrolled { box-shadow: 0 1px 20px rgba(0,0,0,0.4); }
-
-/* ─── ACCURACY STATS BAR ─────────────────────────────────── */
+/* STATS BAR */
 .accuracy-bar {
-  display: flex; justify-content: center; gap: 0;
-  background: var(--border); border: 1px solid var(--border);
+  display: flex; background: var(--border); border: 1px solid var(--border);
   border-radius: var(--radius); overflow: hidden;
-  margin: 3rem auto 0; max-width: 860px;
 }
 .accuracy-stat {
   flex: 1; background: var(--bg2); padding: 1.25rem 1rem; text-align: center;
   border-right: 1px solid var(--border);
 }
 .accuracy-stat:last-child { border-right: none; }
-.accuracy-val {
-  font-size: 28px; font-weight: 800; letter-spacing: -0.03em;
-  color: var(--accent); line-height: 1;
-}
+.accuracy-val { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: var(--accent); line-height: 1; }
 .accuracy-label { font-size: 11px; color: var(--text3); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.07em; }
 @media (max-width: 560px) { .accuracy-bar { flex-wrap: wrap; } .accuracy-stat { flex: 0 0 50%; border-bottom: 1px solid var(--border); } }
 
-/* ─── 3D MOLECULE CANVAS ─────────────────────────────────── */
-#mol-canvas {
-  position: absolute; right: 0; top: 0; bottom: 0;
-  width: 45%; opacity: 0.9; pointer-events: none;
-}
-.hero-section { position: relative; }
-@media (max-width: 768px) { #mol-canvas { display: none; } }
+/* LANDING INNER */
+.landing-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 2rem 5rem; }
 
-/* ─── SCROLL FADE IN ─────────────────────────────────────── */
-.fade-up {
-  opacity: 0; transform: translateY(28px);
-  transition: opacity 0.65s ease, transform 0.65s ease;
+/* WHAT IT REPLACES */
+.replaces-grid {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
 }
+@media (max-width: 700px) { .replaces-grid { grid-template-columns: 1fr; } }
+.replaces-col { background: var(--bg2); padding: 1.75rem 1.5rem; }
+.replaces-col.immunobind { background: var(--bg3); }
+.replaces-col-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 1rem; }
+.replaces-col.immunobind .replaces-col-head { color: var(--accent); }
+.replaces-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.replaces-list li { font-size: 13px; line-height: 1.55; color: var(--text2); display: flex; align-items: flex-start; gap: 8px; }
+.replaces-list li::before { content: '\00D7'; color: var(--red); font-weight: 700; flex-shrink: 0; font-size: 14px; }
+.replaces-col.immunobind .replaces-list li::before { content: '\2713'; color: var(--green); }
+.replaces-col.immunobind .replaces-list li { color: var(--text); }
+.replaces-vs {
+  display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem 1rem; background: var(--bg); font-size: 10px; font-weight: 700;
+  color: var(--text3); writing-mode: vertical-rl; letter-spacing: 0.18em;
+  text-transform: uppercase; border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+}
+@media (max-width: 700px) {
+  .replaces-vs { writing-mode: horizontal-tb; padding: 0.7rem; border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+}
+
+/* HOW IT WORKS */
+.steps-row {
+  display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--border);
+}
+@media (max-width: 700px) { .steps-row { grid-template-columns: 1fr; } }
+.step { background: var(--bg2); padding: 1.75rem 1.5rem; }
+.step-num { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+.step-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.step-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+.step-arrow {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 1.25rem; background: var(--bg); color: var(--text3); font-size: 20px;
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+}
+@media (max-width: 700px) { .step-arrow { padding: 0.5rem; border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); } }
+
+/* RECEPTOR GRID */
+.receptor-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+@media (max-width: 560px) { .receptor-grid { grid-template-columns: 1fr; } }
+.receptor-card { background: var(--bg2); padding: 1.5rem; }
+.receptor-card-name { font-size: 13px; font-weight: 700; margin-bottom: 7px; color: var(--accent); }
+.receptor-card-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+/* TECH ROW */
+.tech-row {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+@media (max-width: 560px) { .tech-row { grid-template-columns: 1fr; } }
+.tech-card { background: var(--bg2); padding: 1.5rem; }
+.tech-card-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 8px; }
+.tech-card-val { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; margin-bottom: 8px; }
+.tech-card-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+/* USE CASES */
+.usecase-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+@media (max-width: 700px) { .usecase-grid { grid-template-columns: 1fr; } }
+.usecase-card { background: var(--bg2); padding: 1.75rem 1.5rem; }
+.usecase-icon { font-size: 22px; margin-bottom: 10px; }
+.usecase-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.usecase-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+@media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+/* GLOBAL BACKGROUND CANVAS */
+#bg-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+body > *:not(#bg-canvas) { position: relative; z-index: 1; }
+
+/* SCROLL SHADOW ON NAV */
+nav { transition: background 0.2s, box-shadow 0.2s; }
+nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
+[data-theme="light"] nav.scrolled { box-shadow: 0 1px 16px rgba(0,0,0,0.1); }
+
+/* SCROLL FADE IN */
+.fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
 .fade-up.visible { opacity: 1; transform: translateY(0); }
 </style>
 </head>
@@ -458,77 +490,164 @@ nav.scrolled { box-shadow: 0 1px 20px rgba(0,0,0,0.4); }
 <!-- ─── LANDING PAGE ─────────────────────────────────────── -->
 <div id="page-landing" class="hidden">
 
-  <div class="hero-section">
-    <canvas id="mol-canvas"></canvas>
-    <div class="hero-badge">TLR1–10 · STING · cGAS · RIG-I · MDA5</div>
-    <h1 class="hero-title">
-      Screen immune receptors<br>in <span class="accent-word">seconds, not days.</span>
-    </h1>
-    <p class="hero-sub">
-      AI-powered binding estimation for every major innate immune receptor.
-      Stop running AutoDock Vina manually — filter your entire candidate library before you synthesize a thing.
-    </p>
-    <p class="hero-sub2">
-      Your immune system detects threats through pattern recognition receptors (PRRs). Testing whether a molecule hits one of these receptors normally requires synthesis — days of lab work, hundreds of dollars per compound, most of which fail. ImmunoBind gives you a binding-strength estimate in seconds, cutting dead-end candidates before you spend a cent.
-    </p>
-    <div class="hero-cta">
-      <button class="btn btn-primary" onclick="showPage('screener')">Try the screener →</button>
-      <button class="btn btn-ghost" onclick="showPage('batch')">Batch upload</button>
+  <!-- HERO: two-column -->
+  <section class="hero-section">
+    <div class="hero-left">
+      <div class="hero-badge">TLR1–10 &middot; STING &middot; cGAS &middot; RIG-I &middot; MDA5</div>
+      <h1 class="hero-title">
+        Innate immune<br>receptor screening,<br><span class="accent-word">without the wait.</span>
+      </h1>
+      <p class="hero-sub">
+        Predict binding strength for any of 14 innate immune receptors in under 2&nbsp;seconds. Stop running AutoDock Vina manually &mdash; filter your entire candidate library before you synthesize a single compound.
+      </p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="showPage('screener')">Start screening &rarr;</button>
+        <button class="btn btn-ghost" onclick="showPage('batch')">Batch upload</button>
+      </div>
     </div>
-    <div class="accuracy-bar" style="width:100%;max-width:700px;margin-top:3rem">
-      <div class="accuracy-stat"><div class="accuracy-val">R²=0.71</div><div class="accuracy-label">ML model accuracy</div></div>
-      <div class="accuracy-stat"><div class="accuracy-val">14</div><div class="accuracy-label">Receptors covered</div></div>
-      <div class="accuracy-stat"><div class="accuracy-val">&lt;2s</div><div class="accuracy-label">Per analysis</div></div>
-      <div class="accuracy-stat"><div class="accuracy-val">20</div><div class="accuracy-label">Free queries/month</div></div>
+    <div class="hero-right">
+      <canvas id="mol-canvas"></canvas>
     </div>
-  </div>
+  </section>
 
   <div class="landing-inner">
-    <div class="section-header">
+
+    <!-- STATS BAR -->
+    <div class="accuracy-bar fade-up" style="margin-bottom:4rem">
+      <div class="accuracy-stat"><div class="accuracy-val">R&sup2;=0.71</div><div class="accuracy-label">ML model accuracy</div></div>
+      <div class="accuracy-stat"><div class="accuracy-val">14</div><div class="accuracy-label">Receptors covered</div></div>
+      <div class="accuracy-stat"><div class="accuracy-val">&lt;2s</div><div class="accuracy-label">Per analysis</div></div>
+      <div class="accuracy-stat"><div class="accuracy-val">$0</div><div class="accuracy-label">To start</div></div>
+    </div>
+
+    <!-- WHAT IT REPLACES -->
+    <div class="section-header fade-up">
+      <div class="section-header-label">Comparison</div>
+      <div class="section-header-title">What ImmunoBind replaces</div>
+    </div>
+    <div class="replaces-grid fade-up">
+      <div class="replaces-col">
+        <div class="replaces-col-head">Traditional workflow</div>
+        <ul class="replaces-list">
+          <li>AutoDock Vina: 2&ndash;4 hours of setup per compound</li>
+          <li>Synthesis required before you know if a molecule binds</li>
+          <li>ELISA / NF-&kappa;B reporter assays: 3&ndash;5 days + ~$200 per compound</li>
+          <li>Manual pharmacophore analysis against crystal structures</li>
+          <li>Separate expert and toolchain needed for each receptor family</li>
+          <li>No consistent cross-receptor scoring or comparison</li>
+        </ul>
+      </div>
+      <div class="replaces-vs">vs</div>
+      <div class="replaces-col immunobind">
+        <div class="replaces-col-head">With ImmunoBind</div>
+        <ul class="replaces-list">
+          <li>Binding estimate in under 2 seconds for any compound</li>
+          <li>Screen entire libraries before committing to synthesis</li>
+          <li>20 free queries per month &mdash; no credit card required</li>
+          <li>Automated pharmacophore report with PDB key contact residues</li>
+          <li>14 receptors in a single interface &mdash; TLR, STING, RIG-I, MDA5</li>
+          <li>Consistent pIC50 and IC50 output across all targets</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="section-header fade-up" style="margin-top:3.5rem">
+      <div class="section-header-label">Workflow</div>
+      <div class="section-header-title">Three steps to a binding report</div>
+    </div>
+    <div class="steps-row fade-up">
+      <div class="step">
+        <div class="step-num">Step 01</div>
+        <div class="step-title">Draw or paste your compound</div>
+        <div class="step-desc">Enter a SMILES string directly, use the built-in JSME structure editor, or search by compound name &mdash; PubChem lookup is built in and resolves common drug names and research compounds instantly.</div>
+      </div>
+      <div class="step-arrow">&rarr;</div>
+      <div class="step">
+        <div class="step-num">Step 02</div>
+        <div class="step-title">Select your target receptor</div>
+        <div class="step-desc">Choose from 14 innate immune sensors grouped by receptor family. TLR1/2, TLR2/6, and TLR4 use a trained XGBoost ML model (R&sup2;=0.71); all others use expert LLM analysis with receptor-specific pharmacophore context from published crystal structures.</div>
+      </div>
+      <div class="step-arrow">&rarr;</div>
+      <div class="step">
+        <div class="step-num">Step 03</div>
+        <div class="step-title">Get your binding report</div>
+        <div class="step-desc">Receive a binding score (0&ndash;100), estimated pIC50 and IC50 in nM, key pharmacophore contact flags from PDB crystal structures, drug-likeness analysis, and a full expert narrative. Export as JSON or CSV, or share via link.</div>
+      </div>
+    </div>
+
+    <!-- RECEPTOR COVERAGE -->
+    <div class="section-header fade-up" style="margin-top:3.5rem">
       <div class="section-header-label">Receptor coverage</div>
       <div class="section-header-title">Every major innate immune sensor</div>
     </div>
-
     <div class="receptor-grid fade-up">
       <div class="receptor-card">
-        <div class="receptor-card-name">Toll-like receptors (TLR1–10)</div>
-        <div class="receptor-card-desc">The primary bacterial and viral sensors on immune cells. TLR1/2 and TLR2/6 detect lipopeptides; TLR4 detects LPS; TLR3/7/8/9 detect viral nucleic acids. Heavily targeted for vaccine adjuvants and sepsis drugs.</div>
+        <div class="receptor-card-name">TLR1/2 &middot; TLR2/6 &middot; TLR4 &mdash; ML model</div>
+        <div class="receptor-card-desc">The three most drug-targeted TLRs. Binding predictions use a trained XGBoost model (R&sup2;=0.71) fit on experimental pIC50 data from published lipopeptide and LPS analogue studies. Outputs include estimated IC50 in nM, pharmacophore contact scores for key residues (Asn294, Phe349, Glu271), and lipid anchor detection. The model takes 2D molecular descriptors: MW, LogP, acyl chain count, and fingerprint-derived features.</div>
       </div>
       <div class="receptor-card">
-        <div class="receptor-card-name">STING &amp; cGAS</div>
-        <div class="receptor-card-desc">STING and its upstream sensor cGAS detect foreign or misplaced DNA — a sign of viral infection or cancer mutation. STING agonists are one of the most active areas in cancer immunotherapy, with multiple compounds in clinical trials.</div>
+        <div class="receptor-card-name">TLR3 &middot; TLR7 &middot; TLR8 &middot; TLR9 &mdash; nucleic acid sensors</div>
+        <div class="receptor-card-desc">Endosomal TLRs that detect nucleic acid patterns from pathogens. TLR3 recognises double-stranded RNA (poly I:C analogues; PDB 3CIY); TLR7 and TLR8 sense single-stranded RNA and small-molecule agonists such as imiquimod and resiquimod (PDB 5GMH, 3W3J); TLR9 detects unmethylated CpG ODNs from bacteria and viruses (PDB 3WPB). Each analysis is grounded in the corresponding crystal structure.</div>
       </div>
       <div class="receptor-card">
-        <div class="receptor-card-name">RIG-I &amp; MDA5</div>
-        <div class="receptor-card-desc">Intracellular sensors that detect double-stranded RNA produced during viral replication. Activating them triggers a strong antiviral interferon response. Drug candidates are being explored for influenza, COVID-19, and RSV.</div>
+        <div class="receptor-card-name">STING &middot; cGAS &mdash; cytosolic DNA sensing</div>
+        <div class="receptor-card-desc">STING (Stimulator of Interferon Genes) and its upstream sensor cGAS detect foreign or misplaced cytosolic DNA &mdash; a hallmark of viral infection, cancer mutation load, or cellular stress. STING agonists (cyclic dinucleotides, DMXAA analogues; PDB 4LOH) are among the most active areas in cancer immunotherapy, with multiple compounds in Phase II/III trials. cGAS inhibitors are being explored in autoimmune disease.</div>
       </div>
       <div class="receptor-card">
-        <div class="receptor-card-name">ML + LLM analysis</div>
-        <div class="receptor-card-desc">TLR1/2, TLR2/6, and TLR4 use a trained XGBoost model (R²=0.71) for pIC50 prediction. All other receptors use expert LLM analysis with receptor-specific pharmacophore context and PDB reference structures.</div>
+        <div class="receptor-card-name">RIG-I &middot; MDA5 &mdash; cytosolic RNA sensing</div>
+        <div class="receptor-card-desc">DExD/H-box RNA helicases that sense double-stranded RNA generated during viral replication. RIG-I preferentially recognises short 5&prime;-triphosphate dsRNA (PDB 4A36); MDA5 forms cooperative filaments on long dsRNA (PDB 4GL2). Both activate the MAVS signalling axis, triggering type-I interferon production. Active drug programmes target influenza, SARS-CoV-2, and RSV using synthetic RIG-I / MDA5 agonists.</div>
+      </div>
+    </div>
+
+    <!-- UNDER THE HOOD -->
+    <div class="section-header fade-up" style="margin-top:3.5rem">
+      <div class="section-header-label">Under the hood</div>
+      <div class="section-header-title">How the predictions are made</div>
+    </div>
+    <div class="tech-row fade-up">
+      <div class="tech-card">
+        <div class="tech-card-label">ML model &mdash; TLR1/2, TLR2/6, TLR4</div>
+        <div class="tech-card-val">XGBoost &middot; R&sup2;=0.71</div>
+        <div class="tech-card-desc">Trained on experimental pIC50 measurements from published lipopeptide binding studies. Features include molecular weight, cLogP, rotatable bond count, acyl chain count, hydrogen bond donors and acceptors, and 2048-bit Morgan fingerprint-derived descriptors. The model outputs a pIC50 value directly; IC50 is back-calculated as 10^(9&minus;pIC50)&nbsp;nM. Confidence is highest for lipopeptide scaffolds structurally similar to training data (Pam3CSK4, FSL-1, lipid&nbsp;A analogues).</div>
+      </div>
+      <div class="tech-card">
+        <div class="tech-card-label">LLM analysis &mdash; all other receptors</div>
+        <div class="tech-card-val">Claude Sonnet &middot; Expert context</div>
+        <div class="tech-card-desc">Each of the 14 receptors has a hand-curated pharmacophore context: key binding residues from X-ray crystallography (PDB), known agonist and antagonist scaffolds with their potency ranges, and selectivity-determining structural features. The LLM evaluates the input SMILES against this expert context and returns a structured binding score (0&ndash;100), pharmacophore match score, key contact flags, drug-likeness assessment, and a free-text expert narrative explaining the rationale.</div>
+      </div>
+    </div>
+
+    <!-- USE CASES -->
+    <div class="section-header fade-up" style="margin-top:3.5rem">
+      <div class="section-header-label">Use cases</div>
+      <div class="section-header-title">Built for researchers who move fast</div>
+    </div>
+    <div class="usecase-grid fade-up">
+      <div class="usecase-card">
+        <div class="usecase-icon">&#128137;</div>
+        <div class="usecase-title">Vaccine adjuvant design</div>
+        <div class="usecase-desc">Screen synthetic lipopeptide and TLR agonist libraries before committing to SPPS or total synthesis. Rapidly distinguish TLR1/2 vs TLR2/6 selectivity &mdash; the two heterodimers have distinct binding pocket geometries and acyl chain preferences that ImmunoBind resolves in a single screen.</div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">&#129516;</div>
+        <div class="usecase-title">Cancer immunotherapy</div>
+        <div class="usecase-desc">Evaluate STING agonists, TLR7/8 agonists, and RIG-I activators for tumour microenvironment reprogramming. Screen cyclic dinucleotide analogues, DMXAA derivatives, and imidazoquinoline scaffolds against the appropriate receptor before moving into cell-based NF-&kappa;B or IFN-&beta; reporter assays.</div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">&#129430;</div>
+        <div class="usecase-title">Antiviral drug discovery</div>
+        <div class="usecase-desc">Identify compounds that activate innate antiviral responses via RIG-I, MDA5, TLR3, TLR7, or TLR9. Useful for screening candidates that trigger interferon responses as part of a combination antiviral strategy, or for identifying off-target TLR activation in drug safety profiling.</div>
       </div>
     </div>
 
     <div class="divider"></div>
-
-    <div class="section-header">
-      <div class="section-header-label">Scientific basis</div>
-    </div>
-    <a class="paper-link fade-up" href="#" onclick="alert('Add your bioRxiv DOI here once published')">
-      <div class="paper-link-icon">P</div>
-      <div>
-        <div class="paper-link-title">Rational Design of Pam3Cys-SNFKK: A GIPL-Inspired Lipopeptide Targeting the TLR2 Binding Interface</div>
-        <div class="paper-link-sub">Ahmed Zeeshan · Independent Research · 2025</div>
-      </div>
-    </a>
-
-    <div class="divider"></div>
-    <div style="text-align:center;color:var(--text3);font-size:13px">
-      Questions? <a href="mailto:zeeshatron@gmail.com" style="color:var(--accent);text-decoration:none">zeeshatron@gmail.com</a>
+    <div style="text-align:center;color:var(--text3);font-size:13px;padding-bottom:1rem">
+      Questions or collaboration? <a href="mailto:zeeshatron@gmail.com" style="color:var(--accent);text-decoration:none">zeeshatron@gmail.com</a>
     </div>
   </div>
 </div>
 
-<!-- ─── SCREENER PAGE ─────────────────────────────────────── -->
 <div id="page-screener" class="hidden">
   <div class="inner-page">
     <div class="card">
@@ -785,12 +904,15 @@ nav.scrolled { box-shadow: 0 1px 20px rgba(0,0,0,0.4); }
 </div>
 
 <script>
-// ─── GLOBAL BACKGROUND CANVAS (fixed, always visible) ────────
+// ─── GLOBAL BACKGROUND CANVAS ───────────────────────────────
 (function initBgCanvas() {
   const canvas = document.getElementById('bg-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let W, H, particles = [];
+  const scrollRef = { y: 0 };
+
+  window.addEventListener('scroll', () => { scrollRef.y = window.scrollY; }, { passive: true });
 
   function resize() {
     W = canvas.width = window.innerWidth;
@@ -800,57 +922,72 @@ nav.scrolled { box-shadow: 0 1px 20px rgba(0,0,0,0.4); }
   function mkParticle() {
     return {
       x: Math.random() * W, y: Math.random() * H,
-      r: Math.random() * 1.2 + 0.2,
-      vx: (Math.random() - 0.5) * 0.18,
-      vy: (Math.random() - 0.5) * 0.18,
-      a: Math.random() * 0.45 + 0.08,
+      r: Math.random() * 1.5 + 0.3,
+      vx: (Math.random() - 0.5) * 0.2,
+      vy: (Math.random() - 0.5) * 0.2,
+      a: Math.random() * 0.6 + 0.12,
     };
   }
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
     const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-
-    // Animated radial glow orb
     const t = Date.now() / 5000;
-    const cx = W * 0.5 + Math.sin(t) * 60;
-    const cy = H * 0.38 + Math.cos(t * 0.7) * 40;
-    const r = Math.min(W, H) * 0.55;
-    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-    if (isDark) {
-      grad.addColorStop(0, 'rgba(0,190,255,0.10)');
-      grad.addColorStop(0.35, 'rgba(100,30,230,0.055)');
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
-    } else {
-      grad.addColorStop(0, 'rgba(0,153,181,0.06)');
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
-    }
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
+    const scrollFrac = Math.min(scrollRef.y / Math.max(document.body.scrollHeight - H, 1), 1);
 
-    // Floating particles
-    particles.forEach(p => {
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < -4) p.x = W + 4;
-      if (p.x > W + 4) p.x = -4;
-      if (p.y < -4) p.y = H + 4;
-      if (p.y > H + 4) p.y = -4;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = isDark
-        ? `rgba(160,170,220,${p.a * 0.5})`
-        : `rgba(0,100,130,${p.a * 0.25})`;
-      ctx.fill();
+    // Multiple animated glow orbs
+    const orbs = [
+      { xf: 0.72, yf: 0.22, rf: 0.48, st: t * 1.0, ct: t * 0.65, ax: 0.06, ay: 0.04,
+        darkC: 'rgba(0,200,255,0.09)', lightC: 'rgba(0,130,160,0.05)' },
+      { xf: 0.18, yf: 0.68, rf: 0.38, st: t * 1.4, ct: t * 0.9, ax: 0.05, ay: 0.05,
+        darkC: 'rgba(120,40,240,0.07)', lightC: 'rgba(80,0,180,0.03)' },
+      { xf: 0.5,  yf: 0.45, rf: 0.6,  st: t * 0.5, ct: t * 0.38, ax: 0.03, ay: 0.025,
+        darkC: 'rgba(0,180,255,0.04)', lightC: 'rgba(0,100,140,0.03)' },
+    ];
+    orbs.forEach(o => {
+      const cx = W * (o.xf + Math.sin(o.st) * o.ax);
+      const cy = H * (o.yf + Math.cos(o.ct) * o.ay) + scrollFrac * H * 0.06;
+      const r = Math.min(W, H) * o.rf;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+      grad.addColorStop(0, isDark ? o.darkC : o.lightC);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
     });
 
+    // Particles with network connections
+    const LINK = 140;
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < -4) p.x = W + 4; if (p.x > W + 4) p.x = -4;
+      if (p.y < -4) p.y = H + 4; if (p.y > H + 4) p.y = -4;
+      // Network lines to nearby particles
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = p.x - particles[j].x, dy = p.y - particles[j].y;
+        const d2 = dx*dx + dy*dy;
+        if (d2 < LINK * LINK) {
+          const alpha = (1 - Math.sqrt(d2) / LINK) * (isDark ? 0.2 : 0.08);
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = isDark ? `rgba(0,212,232,${alpha})` : `rgba(0,100,130,${alpha})`;
+          ctx.lineWidth = 0.6; ctx.stroke();
+        }
+      }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = isDark ? `rgba(160,185,230,${p.a * 0.55})` : `rgba(0,100,130,${p.a * 0.3})`;
+      ctx.fill();
+    }
     requestAnimationFrame(draw);
   }
 
   resize();
-  particles = Array.from({ length: Math.floor((W * H) / 7000) }, mkParticle);
+  const N = Math.min(Math.floor((W * H) / 8500), 80);
+  particles = Array.from({ length: N }, mkParticle);
   window.addEventListener('resize', () => {
     resize();
-    if (particles.length < 30) particles = Array.from({ length: Math.floor((W * H) / 7000) }, mkParticle);
+    const N2 = Math.min(Math.floor((W * H) / 8500), 80);
+    while (particles.length < N2) particles.push(mkParticle());
   });
   draw();
 })();
@@ -879,99 +1016,113 @@ window.addEventListener('scroll', () => {
   renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-  camera.position.set(0, 0, 9);
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+  camera.position.set(0, 0, 16);
 
-  // Soft lighting
-  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-  const dl = new THREE.DirectionalLight(0x00d4e8, 1.2);
-  dl.position.set(3, 4, 5); scene.add(dl);
-  const dl2 = new THREE.DirectionalLight(0x7c3aed, 0.6);
-  dl2.position.set(-4, -2, 2); scene.add(dl2);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+  const dl1 = new THREE.DirectionalLight(0x00d4e8, 1.3);
+  dl1.position.set(4, 5, 6); scene.add(dl1);
+  const dl2 = new THREE.DirectionalLight(0x7c3aed, 0.75);
+  dl2.position.set(-5, -3, 2); scene.add(dl2);
+  const dl3 = new THREE.DirectionalLight(0x10d97a, 0.3);
+  dl3.position.set(0, -6, 4); scene.add(dl3);
 
-  // CPK-style atom colors
-  const COLORS = { C: 0x888888, N: 0x4488ff, O: 0xff4444, S: 0xf0d020, H: 0xdddddd };
-  const RADIUS = { C: 0.32, N: 0.3, O: 0.28, S: 0.36, H: 0.22 };
+  const COLORS = { C: 0x667799, N: 0x3366ee, O: 0xee3333, S: 0xccbb00, P: 0xff8800 };
+  const RADIUS = { C: 0.27, N: 0.25, O: 0.23, S: 0.31, P: 0.29 };
+  const sphereGeo = new THREE.SphereGeometry(1, 20, 20);
 
-  // Simplified Pam3CSK4-inspired molecule layout (stylized)
-  const atoms = [
-    // Lipid tail suggestion (C chain)
-    {e:'C', p:[0,0,0]}, {e:'C', p:[0.75,0.3,0.1]}, {e:'C', p:[1.5,0,-0.1]},
-    {e:'C', p:[2.25,0.3,0.1]}, {e:'C', p:[3.0,0,-0.1]},
-    // Branch: ester O
-    {e:'O', p:[3.6,0.55,0.5]}, {e:'O', p:[4.0,-0.3,-0.2]},
-    // Cys backbone
-    {e:'C', p:[3.7,-1.0,-0.6]}, {e:'S', p:[3.0,-1.8,-1.2]},
-    {e:'C', p:[2.1,-1.2,-0.8]},
-    // Amide N
-    {e:'N', p:[1.3,-0.8,-0.4]},
-    {e:'C', p:[0.5,-1.4,-0.9]},
-    {e:'O', p:[-0.2,-0.9,-0.5]},
-    // Second acyl chain
-    {e:'C', p:[0.3,-2.2,-1.4]}, {e:'C', p:[-0.4,-2.8,-0.9]},
-    {e:'C', p:[-1.1,-2.3,-0.4]}, {e:'C', p:[-1.8,-2.9,0.1]},
-  ];
-
-  // Centre the molecule
-  const cx = atoms.reduce((s,a)=>s+a.p[0],0)/atoms.length;
-  const cy = atoms.reduce((s,a)=>s+a.p[1],0)/atoms.length;
-  const cz = atoms.reduce((s,a)=>s+a.p[2],0)/atoms.length;
-  atoms.forEach(a => { a.p[0]-=cx; a.p[1]-=cy; a.p[2]-=cz; });
-
-  const molGroup = new THREE.Group();
-
-  // Create atom spheres
-  const sphereGeo = new THREE.SphereGeometry(1, 24, 24);
-  atoms.forEach(a => {
-    const mat = new THREE.MeshPhongMaterial({
-      color: COLORS[a.e] || 0x888888,
-      shininess: 90,
-      emissive: COLORS[a.e] ? new THREE.Color(COLORS[a.e]).multiplyScalar(0.12) : 0,
-    });
-    const mesh = new THREE.Mesh(sphereGeo, mat);
-    mesh.position.set(...a.p);
-    mesh.scale.setScalar(RADIUS[a.e] || 0.3);
-    molGroup.add(mesh);
-  });
-
-  // Bond connectivity (by index pairs)
-  const bonds = [
-    [0,1],[1,2],[2,3],[3,4],[4,5],[4,6],[6,7],[7,8],[8,9],[9,10],
-    [10,11],[11,12],[11,13],[13,14],[14,15],[15,16],
-  ];
-
-  function makeBond(p1, p2) {
-    const dir = new THREE.Vector3().subVectors(new THREE.Vector3(...p2), new THREE.Vector3(...p1));
-    const len = dir.length();
-    const mid = new THREE.Vector3(...p1).add(dir.clone().multiplyScalar(0.5));
-    const geo = new THREE.CylinderGeometry(0.07, 0.07, len, 8);
-    const mat = new THREE.MeshPhongMaterial({ color: 0xaaaaaa, shininess: 30, transparent: true, opacity: 0.7 });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.copy(mid);
-    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone().normalize());
-    return mesh;
+  function centre(atoms) {
+    const cx = atoms.reduce((s,a)=>s+a.p[0],0)/atoms.length;
+    const cy = atoms.reduce((s,a)=>s+a.p[1],0)/atoms.length;
+    const cz = atoms.reduce((s,a)=>s+a.p[2],0)/atoms.length;
+    atoms.forEach(a => { a.p[0]-=cx; a.p[1]-=cy; a.p[2]-=cz; });
   }
 
-  bonds.forEach(([i,j]) => molGroup.add(makeBond(atoms[i].p, atoms[j].p)));
+  function mkMolecule(atoms, bonds, scale) {
+    centre(atoms);
+    const g = new THREE.Group();
+    atoms.forEach(a => {
+      const mat = new THREE.MeshPhongMaterial({
+        color: COLORS[a.e]||0x888888, shininess: 85,
+        emissive: new THREE.Color(COLORS[a.e]||0x888888).multiplyScalar(0.1),
+      });
+      const m = new THREE.Mesh(sphereGeo, mat);
+      m.position.set(...a.p); m.scale.setScalar((RADIUS[a.e]||0.27)*scale);
+      g.add(m);
+    });
+    bonds.forEach(([i,j]) => {
+      const p1 = new THREE.Vector3(...atoms[i].p);
+      const p2 = new THREE.Vector3(...atoms[j].p);
+      const dir = new THREE.Vector3().subVectors(p2, p1);
+      const len = dir.length();
+      const geo = new THREE.CylinderGeometry(0.048*scale, 0.048*scale, len, 7);
+      const mat = new THREE.MeshPhongMaterial({ color: 0xaaaacc, shininess: 20, transparent: true, opacity: 0.6 });
+      const m = new THREE.Mesh(geo, mat);
+      m.position.copy(p1.clone().add(dir.clone().multiplyScalar(0.5)));
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.normalize());
+      g.add(m);
+    });
+    return g;
+  }
 
-  scene.add(molGroup);
+  // Molecule 1: Lipopeptide (Pam3CSK4-like) — main, center
+  const m1a = [
+    {e:'C',p:[0,0,0]},{e:'C',p:[0.78,0.32,0.1]},{e:'C',p:[1.56,0,-0.1]},
+    {e:'C',p:[2.34,0.32,0.1]},{e:'C',p:[3.1,0,-0.1]},
+    {e:'O',p:[3.72,0.58,0.5]},{e:'O',p:[4.1,-0.28,-0.2]},
+    {e:'C',p:[3.8,-1.05,-0.65]},{e:'S',p:[3.1,-1.85,-1.25]},
+    {e:'C',p:[2.15,-1.25,-0.82]},{e:'N',p:[1.35,-0.82,-0.42]},
+    {e:'C',p:[0.52,-1.45,-0.95]},{e:'O',p:[-0.18,-0.92,-0.52]},
+    {e:'C',p:[0.32,-2.25,-1.45]},{e:'C',p:[-0.42,-2.82,-0.92]},
+    {e:'C',p:[-1.15,-2.32,-0.42]},{e:'C',p:[-1.85,-2.92,0.1]},
+  ];
+  const m1b = [[0,1],[1,2],[2,3],[3,4],[4,5],[4,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[11,13],[13,14],[14,15],[15,16]];
+  const grp1 = mkMolecule(m1a, m1b, 1.0);
+  grp1.position.set(0, 0.5, 0);
+  scene.add(grp1);
+
+  // Molecule 2: Imidazoquinoline scaffold (TLR7/8 agonist) — upper right
+  const m2a = [
+    {e:'N',p:[0,0,0]},{e:'C',p:[0.65,0.72,0]},{e:'N',p:[1.42,0.28,0]},
+    {e:'C',p:[1.42,-0.62,0]},{e:'C',p:[0.65,-1.02,0]},{e:'C',p:[0,-0.35,0]},
+    {e:'C',p:[-0.72,0.72,0.18]},{e:'N',p:[-0.1,1.35,0.1]},
+    {e:'C',p:[2.12,-1.22,0.1]},{e:'O',p:[2.72,-0.52,0.22]},
+    {e:'C',p:[0.65,1.55,-0.1]},
+  ];
+  const m2b = [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,7],[7,6],[6,5],[3,8],[8,9],[1,10]];
+  const grp2 = mkMolecule(m2a, m2b, 0.78);
+  grp2.position.set(3.2, 3.8, -1.5);
+  scene.add(grp2);
+
+  // Molecule 3: Cyclic dinucleotide fragment (STING agonist) — lower left
+  const m3a = [
+    {e:'P',p:[0,0,0]},{e:'O',p:[0.85,0.82,0]},{e:'O',p:[-0.85,0.82,0]},
+    {e:'O',p:[0,-1.02,0]},{e:'C',p:[1.65,0.52,0.32]},{e:'C',p:[2.25,-0.32,0.05]},
+    {e:'N',p:[2.85,0.42,-0.22]},{e:'C',p:[2.22,1.22,-0.3]},
+    {e:'O',p:[-1.62,0.52,0.32]},{e:'C',p:[-2.22,-0.32,0.05]},
+    {e:'N',p:[-2.82,0.42,-0.18]},{e:'C',p:[3.45,-0.18,-0.08]},
+  ];
+  const m3b = [[0,1],[0,2],[0,3],[1,4],[4,5],[5,6],[6,7],[7,1],[2,8],[8,9],[9,3],[5,11]];
+  const grp3 = mkMolecule(m3a, m3b, 0.74);
+  grp3.position.set(-3.0, -3.5, -1.0);
+  scene.add(grp3);
 
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
-    if (w && h) {
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-    }
+    if (w && h) { renderer.setSize(w, h, false); camera.aspect = w/h; camera.updateProjectionMatrix(); }
   }
   resize();
   new ResizeObserver(resize).observe(canvas);
 
   function animate() {
     requestAnimationFrame(animate);
-    const t = Date.now() * 0.0004;
-    molGroup.rotation.y = t;
-    molGroup.rotation.x = Math.sin(t * 0.4) * 0.25;
+    const t = Date.now() * 0.00028;
+    grp1.rotation.y = t;
+    grp1.rotation.x = Math.sin(t * 0.45) * 0.22;
+    grp2.rotation.y = -t * 0.68;
+    grp2.rotation.z = Math.cos(t * 0.5) * 0.18;
+    grp3.rotation.y = t * 0.82;
+    grp3.rotation.x = Math.sin(t * 0.38) * 0.28;
     renderer.render(scene, camera);
   }
   animate();
