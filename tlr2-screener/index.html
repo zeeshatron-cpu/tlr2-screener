@@ -8,304 +8,474 @@
 <script src="https://jsme-editor.github.io/dist/jsme/jsme.nocache.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #fbfaf8;
-    --bg2: #ffffff;
-    --bg3: #f3f1ec;
-    --border: rgba(20,18,14,0.08);
-    --border2: rgba(20,18,14,0.14);
-    --text: #1a1814;
-    --text2: #6b6558;
-    --text3: #a39d8e;
-    --blue: #1a1814;
-    --blue-bg: rgba(20,18,14,0.06);
-    --green: #3f7d4f;
-    --green-bg: rgba(63,125,79,0.1);
-    --amber: #b3791f;
-    --amber-bg: rgba(179,121,31,0.1);
-    --red: #b3402f;
-    --red-bg: rgba(179,64,47,0.1);
-    --serif: 'Newsreader', Georgia, serif;
-    --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
-    --radius: 4px;
-    --radius-sm: 3px;
-  }
+:root {
+  --bg: #0c0c0f;
+  --bg2: #13131a;
+  --bg3: #1b1b24;
+  --bg4: #22222e;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #f0f0f5;
+  --text2: #8888a0;
+  --text3: #4e4e68;
+  --accent: #00d4e8;
+  --accent-glow: rgba(0,212,232,0.18);
+  --accent-dim: rgba(0,212,232,0.12);
+  --accent-border: rgba(0,212,232,0.35);
+  --purple: #7c3aed;
+  --green: #10d97a;
+  --green-bg: rgba(16,217,122,0.1);
+  --amber: #f0a030;
+  --amber-bg: rgba(240,160,48,0.1);
+  --red: #f04040;
+  --red-bg: rgba(240,64,64,0.1);
+  --mono: 'SF Mono','Fira Code','Cascadia Code',monospace;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --nav-h: 56px;
+}
 
-  [data-theme="dark"] {
-    --bg: #15140f;
-    --bg2: #1c1b15;
-    --bg3: #25241c;
-    --border: rgba(245,242,232,0.08);
-    --border2: rgba(245,242,232,0.14);
-    --text: #ece9df;
-    --text2: #a39d8e;
-    --text3: #6b6558;
-    --blue: #ece9df;
-    --blue-bg: rgba(245,242,232,0.06);
-    --green: #6fbf81;
-    --green-bg: rgba(111,191,129,0.12);
-    --amber: #d9a441;
-    --amber-bg: rgba(217,164,65,0.12);
-    --red: #d97561;
-    --red-bg: rgba(217,117,97,0.12);
-  }
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg2: #f4f4f8;
+  --bg3: #eaeaef;
+  --bg4: #e0e0e8;
+  --border: rgba(0,0,0,0.07);
+  --border2: rgba(0,0,0,0.13);
+  --text: #0a0a14;
+  --text2: #6060788;
+  --text3: #9999b0;
+  --accent: #0099b5;
+  --accent-glow: rgba(0,153,181,0.12);
+  --accent-dim: rgba(0,153,181,0.08);
+  --accent-border: rgba(0,153,181,0.3);
+  --green: #0baa5e;
+  --green-bg: rgba(11,170,94,0.1);
+  --amber: #b87800;
+  --amber-bg: rgba(184,120,0,0.1);
+  --red: #cc2222;
+  --red-bg: rgba(204,34,34,0.1);
+}
 
-  body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; min-height: 100vh; transition: background 0.15s, color 0.15s; }
+/* fix typo in light override */
+[data-theme="light"] { --text2: #606078; }
 
-  .theme-toggle { font-size: 13px; color: var(--text2); padding: 5px 12px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border2); background: var(--bg2); }
-  .theme-toggle:hover { color: var(--text); background: var(--bg3); }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
 
-  .page { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+/* ─── NAV ─────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: var(--nav-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+[data-theme="dark"] nav { background: rgba(12,12,15,0.85); }
 
-  /* NAV */
-  nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
-  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-  .nav-logo-icon { width: 30px; height: 30px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-  .nav-logo-name { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--text); letter-spacing: -0.01em; }
-  .nav-links { display: flex; gap: 2px; align-items: center; }
-  .nav-link { font-size: 13px; color: var(--text2); padding: 5px 12px; border-radius: var(--radius-sm); text-decoration: none; transition: color 0.15s, background 0.15s; }
-  .nav-link:hover, .nav-link.active { color: var(--text); background: var(--bg3); }
+.nav-logo {
+  font-size: 17px; font-weight: 700; color: var(--text);
+  text-decoration: none; letter-spacing: -0.02em;
+}
+.nav-links { display: flex; align-items: center; gap: 2px; }
+.nav-link {
+  font-size: 13px; color: var(--text2); padding: 5px 12px;
+  border-radius: var(--radius-sm); text-decoration: none;
+  border: 1px solid transparent;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.nav-link:hover { color: var(--text); }
+.nav-link.active { color: var(--accent); border-color: var(--accent-border); }
 
-  /* TABS */
-  .tabs { display: flex; gap: 2px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 3px; margin-bottom: 1.5rem; width: fit-content; }
-  .tab { font-size: 13px; padding: 6px 16px; border-radius: var(--radius-sm); cursor: pointer; color: var(--text2); border: none; background: transparent; transition: all 0.15s; }
-  .tab.active { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
+.theme-toggle {
+  font-size: 12px; font-weight: 500; padding: 5px 14px;
+  border-radius: var(--radius-sm); cursor: pointer;
+  border: 1px solid var(--border2);
+  background: transparent; color: var(--text2);
+  transition: all 0.15s; margin-left: 8px;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--border2); background: var(--bg3); }
 
-  /* CARDS */
-  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
-  .card-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.usage-badge {
+  font-size: 11px; color: var(--text3); background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 3px 10px; cursor: default; margin-left: 4px;
+}
+.usage-badge.warn { color: var(--amber); border-color: rgba(240,160,48,0.3); }
+.usage-badge.over { color: var(--red); border-color: rgba(240,64,64,0.3); }
 
-  /* INPUTS */
-  input[type=text], textarea { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; padding: 9px 12px; width: 100%; outline: none; transition: border 0.15s; }
-  input[type=text]:focus, textarea:focus { border-color: var(--text2); }
-  textarea { font-family: var(--mono); resize: vertical; min-height: 80px; }
+/* ─── PAGE LAYOUT ─────────────────────────────────────── */
+.inner-page {
+  max-width: 780px; margin: 0 auto;
+  padding: calc(var(--nav-h) + 3rem) 1.5rem 5rem;
+}
+.inner-page-title {
+  font-size: 28px; font-weight: 700; letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+}
+.inner-page-sub { font-size: 14px; color: var(--text2); margin-bottom: 2rem; }
 
-  /* BUTTONS */
-  .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--border2); background: var(--bg2); color: var(--text); transition: all 0.15s; }
-  .btn:hover { background: var(--bg3); border-color: var(--text3); }
-  .btn-primary { background: var(--text); color: var(--bg2); border-color: var(--text); }
-  .btn-primary:hover { opacity: 0.85; background: var(--text); }
-  .btn-sm { font-size: 12px; padding: 5px 11px; }
+/* ─── BUTTONS ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 500; padding: 8px 16px;
+  border-radius: var(--radius-sm); cursor: pointer;
+  border: 1px solid var(--border2); background: var(--bg3);
+  color: var(--text); transition: all 0.15s;
+}
+.btn:hover { background: var(--bg4); border-color: var(--border2); }
+.btn-primary {
+  background: var(--accent); color: #000;
+  border-color: var(--accent);
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-ghost { background: transparent; border-color: var(--border2); }
+.btn-ghost:hover { background: var(--bg3); }
+.btn-sm { font-size: 12px; padding: 5px 12px; }
 
-  /* EXAMPLE PILLS */
-  .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .pill { font-size: 11px; padding: 4px 11px; border: 1px solid var(--border2); border-radius: 20px; background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; }
-  .pill:hover { background: var(--bg3); color: var(--text); }
-  .target-pill.active { background: var(--text); color: var(--bg2); border-color: var(--text); }
+/* ─── CARDS ───────────────────────────────────────────── */
+.card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+.card-label {
+  font-size: 10px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px;
+}
 
-  /* METRIC GRID */
-  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1.25rem; }
-  .metric { background: var(--bg2); padding: 0.9rem 1.1rem; }
-  .metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-  .metric-val { font-family: var(--serif); font-size: 26px; font-weight: 500; color: var(--text); }
-  .metric-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+/* ─── INPUTS ──────────────────────────────────────────── */
+input[type=text], textarea {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-size: 13px; padding: 9px 12px; width: 100%;
+  outline: none; transition: border 0.15s;
+}
+input[type=text]:focus, textarea:focus { border-color: var(--accent); }
+textarea { font-family: var(--mono); resize: vertical; min-height: 80px; }
 
-  /* SCORE BARS */
-  .score-block { margin-bottom: 1rem; }
-  .score-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; font-size: 13px; }
-  .score-row span:first-child { color: var(--text2); }
-  .score-row span:last-child { font-weight: 500; }
-  .bar { height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; margin-bottom: 12px; }
-  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+/* ─── TARGET PILLS ────────────────────────────────────── */
+.pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.pill {
+  font-size: 11px; padding: 4px 12px; border: 1px solid var(--border2);
+  border-radius: 20px; background: transparent; color: var(--text2);
+  cursor: pointer; transition: all 0.15s;
+}
+.pill:hover { background: var(--bg3); color: var(--text); }
+.target-pill.active {
+  background: var(--accent-dim); color: var(--accent);
+  border-color: var(--accent-border);
+}
+.target-group { margin-bottom: 10px; }
+.target-group-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+.target-pills-row { display: flex; gap: 6px; flex-wrap: wrap; }
 
-  /* VERDICT */
-  .verdict { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px; }
-  .verdict.high { background: var(--green-bg); color: var(--green); }
-  .verdict.medium { background: var(--amber-bg); color: var(--amber); }
-  .verdict.low { background: var(--red-bg); color: var(--red); }
+/* ─── METRICS ─────────────────────────────────────────── */
+.metrics {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 1px; background: var(--border); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem;
+}
+.metric { background: var(--bg2); padding: 1rem 1.25rem; }
+.metric-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.metric-val { font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.metric-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
 
-  /* CONTACTS */
-  .contacts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .contact-badge { font-size: 12px; padding: 3px 10px; border-radius: 20px; border: 0.5px solid var(--border2); color: var(--text3); }
-  .contact-badge.on { background: var(--blue-bg); color: var(--blue); border-color: transparent; }
+/* ─── SCORE BARS ──────────────────────────────────────── */
+.score-block { margin-bottom: 0; }
+.score-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; font-size: 13px; }
+.score-row span:first-child { color: var(--text2); }
+.score-row span:last-child { font-weight: 600; }
+.bar { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; margin-bottom: 14px; }
+.bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 
-  /* FLAGS */
-  .flags { display: flex; flex-direction: column; gap: 6px; }
-  .flag { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.5; }
-  .flag.pass { color: var(--green); }
-  .flag.warn { color: var(--amber); }
-  .flag.fail { color: var(--red); }
-  .flag .dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; background: currentColor; }
+/* ─── VERDICT ─────────────────────────────────────────── */
+.verdict { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 12px; border-radius: 20px; letter-spacing: 0.02em; }
+.verdict.high { background: var(--green-bg); color: var(--green); }
+.verdict.medium { background: var(--amber-bg); color: var(--amber); }
+.verdict.low { background: var(--red-bg); color: var(--red); }
 
-  /* ANALYSIS */
-  .analysis-text { font-size: 14px; color: var(--text2); line-height: 1.75; }
+/* ─── CONTACTS ────────────────────────────────────────── */
+.contacts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.contact-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border2); color: var(--text3); }
+.contact-badge.on { background: var(--accent-dim); color: var(--accent); border-color: var(--accent-border); }
 
-  /* DROP ZONE */
-  .drop-zone { border: 1px dashed var(--border2); border-radius: var(--radius); padding: 2.5rem 1rem; text-align: center; cursor: pointer; transition: background 0.15s; }
-  .drop-zone:hover { background: var(--bg3); }
-  .drop-zone .dz-icon { font-size: 28px; margin-bottom: 8px; color: var(--text3); }
-  .drop-zone .dz-label { font-size: 14px; color: var(--text2); }
-  .drop-zone .dz-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
-  .mono { font-family: var(--mono); font-size: 11px; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; color: var(--text2); }
+/* ─── FLAGS ───────────────────────────────────────────── */
+.flags { display: flex; flex-direction: column; gap: 6px; }
+.flag { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.5; }
+.flag.pass { color: var(--green); }
+.flag.warn { color: var(--amber); }
+.flag.fail { color: var(--red); }
+.flag .dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 8px; flex-shrink: 0; background: currentColor; }
 
-  /* PROGRESS */
-  .progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); margin-bottom: 6px; }
-  .progress-track { height: 3px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--text); border-radius: 2px; transition: width 0.3s; }
+/* ─── ANALYSIS TEXT ───────────────────────────────────── */
+.analysis-text { font-size: 14px; color: var(--text2); line-height: 1.8; }
 
-  /* STATS */
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1.25rem; }
-  .stat { background: var(--bg2); padding: 0.85rem 1rem; }
-  .stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
-  .stat-val { font-family: var(--serif); font-size: 24px; font-weight: 500; }
+/* ─── DROP ZONE ───────────────────────────────────────── */
+.drop-zone {
+  border: 1px dashed var(--border2); border-radius: var(--radius);
+  padding: 2.5rem 1rem; text-align: center; cursor: pointer; transition: background 0.15s;
+}
+.drop-zone:hover { background: var(--bg3); }
+.drop-zone .dz-icon { font-size: 24px; margin-bottom: 8px; color: var(--text3); }
+.drop-zone .dz-label { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
+.drop-zone .dz-sub { font-size: 12px; color: var(--text3); }
+.mono { font-family: var(--mono); font-size: 11px; background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; color: var(--text2); }
 
-  /* TABLE */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
-  th { text-align: left; padding: 9px 10px; font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
-  td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--bg3); }
+/* ─── PROGRESS ────────────────────────────────────────── */
+.progress-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+.progress-track { height: 2px; background: var(--bg3); border-radius: 1px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 1px; transition: width 0.3s; }
 
-  /* LANDING */
-  .hero { text-align: center; padding: 2rem 0 3rem; }
-  .hero-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); background: var(--bg3); border: 1px solid var(--border2); padding: 4px 12px; border-radius: 20px; margin-bottom: 1.75rem; }
-  .hero-title { font-family: var(--serif); font-size: clamp(32px, 6vw, 50px); font-weight: 500; letter-spacing: -0.01em; color: var(--text); line-height: 1.18; margin-bottom: 1.25rem; }
-  .hero-title span { font-style: italic; color: var(--text2); }
-  .hero-sub { font-size: 16px; color: var(--text2); max-width: 480px; margin: 0 auto 2.25rem; line-height: 1.7; }
-  .hero-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 3rem 0; }
-  @media (max-width: 560px) { .feature-grid { grid-template-columns: 1fr; } }
-  .feature-card { background: var(--bg2); padding: 1.5rem; }
-  .feature-icon { font-size: 20px; margin-bottom: 12px; }
-  .feature-title { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
-  .feature-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
-  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 2rem 0; }
-  .pricing-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; }
-  .pricing-card.featured { border-color: var(--text); border-width: 1.5px; }
-  .pricing-badge { font-size: 11px; background: var(--bg3); color: var(--text); border: 1px solid var(--border2); padding: 3px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
-  .pricing-name { font-family: var(--serif); font-size: 17px; font-weight: 500; margin-bottom: 4px; }
-  .pricing-price { font-family: var(--serif); font-size: 30px; font-weight: 500; margin-bottom: 4px; letter-spacing: -0.01em; }
-  .pricing-price span { font-family: 'Inter'; font-size: 14px; font-weight: 400; color: var(--text2); }
-  .pricing-desc { font-size: 12px; color: var(--text2); margin-bottom: 1rem; }
-  .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text2); }
-  .pricing-features li::before { content: '— '; color: var(--text3); font-weight: 500; }
-  .section-title { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
-  .divider { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
-  /* MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(26,24,20,0.45); z-index: 200; display: flex; align-items: center; justify-content: center; }
-  .modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 1.25rem; width: 460px; max-width: 95vw; box-shadow: 0 8px 32px rgba(20,18,14,0.12); }
-  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: 14px; font-weight: 500; }
-  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
-  #jsme-container { background: #fff; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+/* ─── STATS ROW ───────────────────────────────────────── */
+.stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
+.stat { background: var(--bg2); padding: 0.9rem 1rem; }
+.stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+.stat-val { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
 
-  /* LLM-only badge */
-  .llm-badge { display: inline-flex; align-items: center; font-size: 11px; color: var(--amber); background: var(--amber-bg); border: 1px solid rgba(179,121,31,0.25); border-radius: 20px; padding: 2px 9px; margin-left: 8px; vertical-align: middle; }
+/* ─── TABLE ───────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+th { text-align: left; padding: 9px 10px; font-size: 10px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; border-bottom: 1px solid var(--border); }
+td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); }
 
-  /* Target selector groups */
-  .target-group { margin-bottom: 10px; }
-  .target-group-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
-  .target-pills-row { display: flex; gap: 6px; flex-wrap: wrap; }
+/* ─── QUOTA BANNER ────────────────────────────────────── */
+.quota-banner { background: var(--amber-bg); border: 1px solid rgba(240,160,48,0.25); border-radius: var(--radius-sm); padding: 0.9rem 1.25rem; margin-bottom: 1rem; font-size: 13px; color: var(--amber); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.quota-banner a { color: var(--amber); font-weight:600; }
 
-  /* NAME LOOKUP */
-  .lookup-row { display: flex; gap: 6px; margin-bottom: 8px; }
+/* ─── LLM BADGE ───────────────────────────────────────── */
+.llm-badge { display: inline-flex; align-items: center; font-size: 10px; color: var(--amber); background: var(--amber-bg); border: 1px solid rgba(240,160,48,0.25); border-radius: 20px; padding: 2px 9px; margin-left: 8px; vertical-align: middle; }
 
-  /* HISTORY */
-  .history-item { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
-  .history-item:last-child { border-bottom: none; }
-  .history-item:hover { background: var(--bg3); }
-  .history-item-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
-  .history-item-meta { font-size: 11px; color: var(--text3); }
-  .history-item-right { text-align: right; flex-shrink: 0; }
-  .history-empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
+/* ─── LOOKUP ROW ──────────────────────────────────────── */
+.lookup-row { display: flex; gap: 6px; margin-bottom: 8px; }
 
-  .usage-badge { font-size: 11px; color: var(--text3); background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px; cursor: default; }
-  .usage-badge.warn { color: var(--amber); border-color: rgba(179,121,31,0.3); }
-  .usage-badge.over { color: var(--red); border-color: rgba(179,64,47,0.3); }
-  .quota-banner { background: var(--amber-bg); border: 1px solid rgba(179,121,31,0.25); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; font-size: 13px; color: var(--amber); display:flex; align-items:center; justify-content:space-between; gap:10px; }
-  .quota-banner a { color: var(--amber); font-weight:500; }
-  .paper-link { display: flex; align-items: center; gap: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; text-decoration: none; transition: border-color 0.15s; }
-  .paper-link:hover { border-color: var(--border2); }
-  .paper-link-icon { width: 36px; height: 36px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-  .paper-link-title { font-size: 13px; font-weight: 500; color: var(--text); }
-  .paper-link-sub { font-size: 12px; color: var(--text2); }
+/* ─── HISTORY ─────────────────────────────────────────── */
+.history-item { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: start; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+.history-item:last-child { border-bottom: none; }
+.history-item:hover { background: var(--bg3); }
+.history-item-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+.history-item-meta { font-size: 11px; color: var(--text3); }
+.history-item-right { text-align: right; flex-shrink: 0; }
+.history-empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
 
-  /* UTIL */
-  .hidden { display: none !important; }
-  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .loading { display: flex; align-items: center; gap: 10px; padding: 2rem; justify-content: center; color: var(--text2); font-size: 14px; }
-  .spinner { width: 16px; height: 16px; border: 2px solid var(--border2); border-top-color: var(--text); border-radius: 50%; animation: spin 0.7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
+/* ─── PRICING ─────────────────────────────────────────── */
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px,1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin: 1.5rem 0; }
+.pricing-card { background: var(--bg2); padding: 1.75rem 1.5rem; position: relative; }
+.pricing-card.featured { background: var(--bg3); }
+.pricing-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-border); padding: 2px 10px; border-radius: 20px; display: inline-block; margin-bottom: 12px; }
+.pricing-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.01em; }
+.pricing-price { font-size: 36px; font-weight: 800; color: var(--accent); letter-spacing: -0.03em; margin-bottom: 4px; }
+.pricing-price span { font-size: 14px; font-weight: 400; color: var(--text2); }
+.pricing-desc { font-size: 12px; color: var(--text2); margin-bottom: 1.25rem; }
+.pricing-features { list-style: none; display: flex; flex-direction: column; gap: 7px; font-size: 13px; color: var(--text2); }
+.pricing-features li { display: flex; align-items: flex-start; gap: 8px; }
+.pricing-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+.section-header { margin: 2.5rem 0 1rem; }
+.section-header-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.section-header-title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+
+/* ─── PAPER LINK ──────────────────────────────────────── */
+.paper-link { display: flex; align-items: center; gap: 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; text-decoration: none; transition: border-color 0.15s; margin-bottom: 1rem; }
+.paper-link:hover { border-color: var(--accent-border); }
+.paper-link-icon { width: 38px; height: 38px; background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; font-weight: 700; color: var(--accent); }
+.paper-link-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.paper-link-sub { font-size: 12px; color: var(--text2); }
+
+/* ─── MODAL ───────────────────────────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 1.5rem; width: 480px; max-width: 95vw; box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: 15px; font-weight: 600; }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
+#jsme-container { background: #fff; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+
+/* ─── UTIL ────────────────────────────────────────────── */
+.hidden { display: none !important; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.loading { display: flex; align-items: center; gap: 10px; padding: 2.5rem; justify-content: center; color: var(--text2); font-size: 14px; }
+.spinner { width: 16px; height: 16px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-size: 14px; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+/* ─── LANDING ─────────────────────────────────────────── */
+#page-landing { position: relative; overflow: hidden; }
+
+.hero-canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0;
+}
+
+.hero-section {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: calc(var(--nav-h) + 2rem) 1.5rem 3rem;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 500; color: var(--accent);
+  background: var(--accent-dim); border: 1px solid var(--accent-border);
+  padding: 5px 16px; border-radius: 20px; margin-bottom: 2rem;
+  letter-spacing: 0.01em;
+}
+
+.hero-title {
+  font-size: clamp(40px, 8vw, 76px);
+  font-weight: 800; letter-spacing: -0.03em;
+  line-height: 1.08; color: var(--text);
+  margin-bottom: 1.5rem; max-width: 860px;
+}
+.hero-title .accent-word {
+  background: linear-gradient(90deg, var(--accent) 0%, #7c3aed 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 17px; color: var(--text2); max-width: 560px;
+  margin: 0 auto 1rem; line-height: 1.75;
+}
+.hero-sub2 {
+  font-size: 14px; color: var(--text3); max-width: 560px;
+  margin: 0 auto 2.5rem; line-height: 1.75;
+}
+
+.hero-cta {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 0;
+}
+.hero-cta .btn-primary {
+  font-size: 14px; padding: 11px 24px; border-radius: 8px;
+}
+.hero-cta .btn-ghost {
+  font-size: 14px; padding: 11px 24px; border-radius: 8px;
+}
+
+/* landing inner content */
+.landing-inner {
+  position: relative; z-index: 1;
+  max-width: 860px; margin: 0 auto; padding: 0 1.5rem 5rem;
+}
+
+.receptor-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+  margin-bottom: 1px;
+}
+@media (max-width: 560px) { .receptor-grid { grid-template-columns: 1fr; } }
+
+.receptor-card { background: var(--bg2); padding: 1.5rem; }
+.receptor-card-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.receptor-card-desc { font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+@media (max-width: 600px) { .pricing-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
-<div class="page">
-  <nav>
-    <a class="nav-logo" href="#" onclick="showPage('landing')">
-      <div class="nav-logo-icon">○</div>
-      <span class="nav-logo-name">ImmunoBind</span>
-    </a>
-    <div class="nav-links">
-      <a class="nav-link active" href="#" id="nav-screener" onclick="showPage('screener')">Screener</a>
-      <a class="nav-link" href="#" id="nav-batch" onclick="showPage('batch')">Batch</a>
-      <a class="nav-link" href="#" id="nav-history" onclick="showPage('history')">History</a>
-      <a class="nav-link" href="#" id="nav-pricing" onclick="showPage('pricing')">Pricing</a>
-      <span class="usage-badge" id="usage-badge" title="Queries used this month">— / 20</span>
-      <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">Dark</button>
-    </div>
-  </nav>
+<!-- ─── NAV ─────────────────────────────────────────────── -->
+<nav>
+  <a class="nav-logo" href="#" onclick="showPage('landing')">ImmunoBind</a>
+  <div class="nav-links">
+    <a class="nav-link" href="#" id="nav-landing" onclick="showPage('landing')">About</a>
+    <a class="nav-link active" href="#" id="nav-screener" onclick="showPage('screener')">Screener</a>
+    <a class="nav-link" href="#" id="nav-batch" onclick="showPage('batch')">Batch</a>
+    <a class="nav-link" href="#" id="nav-history" onclick="showPage('history')">History</a>
+    <a class="nav-link" href="#" id="nav-pricing" onclick="showPage('pricing')">Pricing</a>
+    <span class="usage-badge" id="usage-badge" title="Queries used this month">— / 20</span>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">Light</button>
+  </div>
+</nav>
 
-  <!-- LANDING PAGE -->
-  <div id="page-landing" class="hidden">
-    <div class="hero">
-      <div class="hero-badge">TLR1–10 · STING · cGAS · RIG-I · MDA5</div>
-      <div class="hero-title">Screen immune receptor<br>binding in <span>seconds, not days</span></div>
-      <div class="hero-sub">AI-powered screening for innate immune receptors — TLRs, STING, cGAS, RIG-I, and more. Stop running AutoDock Vina manually; filter your entire candidate library before you synthesize a thing.</div>
-      <div class="hero-cta">
-        <button class="btn btn-primary" onclick="showPage('screener')">Try the screener →</button>
-        <button class="btn" onclick="showPage('batch')">Batch upload</button>
-      </div>
-    </div>
+<!-- ─── LANDING PAGE ─────────────────────────────────────── -->
+<div id="page-landing" class="hidden">
+  <canvas class="hero-canvas" id="hero-canvas"></canvas>
 
-    <hr class="divider">
-    <div class="section-title">The problem, in plain terms</div>
-    <div class="card">
-      <div class="analysis-text">
-        Your immune system runs on sensors. When a cell spots a virus, a bacterium, or a foreign molecule, it's usually one of a family of proteins called pattern recognition receptors (PRRs) that trips the alarm and starts the immune response. Researchers want to activate or block these sensors deliberately — to make vaccines work better, to fight cancer, or to treat autoimmune disease.
-        <br><br>
-        The problem is that testing whether a molecule hits a specific receptor requires synthesizing it in a chemistry lab first — days to weeks of work, hundreds to thousands of dollars per compound, most of which fail. ImmunoBind gives you a binding-strength estimate in seconds before you spend a cent on synthesis. It won't replace the lab assay, but it cuts dead-end candidates out early so the compounds that do get made are far more likely to work.
-      </div>
+  <div class="hero-section">
+    <div class="hero-badge">TLR1–10 · STING · cGAS · RIG-I · MDA5</div>
+    <h1 class="hero-title">
+      Screen immune receptors<br>in <span class="accent-word">seconds, not days.</span>
+    </h1>
+    <p class="hero-sub">
+      AI-powered binding estimation for every major innate immune receptor.
+      Stop running AutoDock Vina manually — filter your entire candidate library before you synthesize a thing.
+    </p>
+    <p class="hero-sub2">
+      Your immune system detects threats through pattern recognition receptors (PRRs). Testing whether a molecule hits one of these receptors normally requires synthesis — days of lab work, hundreds of dollars per compound, most of which fail. ImmunoBind gives you a binding-strength estimate in seconds, cutting dead-end candidates before you spend a cent.
+    </p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="showPage('screener')">Try the screener →</button>
+      <button class="btn btn-ghost" onclick="showPage('batch')">Batch upload</button>
     </div>
+  </div>
 
-    <div class="section-title" style="margin-top:2rem">Receptor groups</div>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-title">Toll-like receptors (TLR1–10)</div>
-        <div class="feature-desc">The primary bacterial and viral sensors on immune cells. TLR1/2 and TLR2/6 recognize lipopeptides from bacteria; TLR4 recognizes LPS (the outer membrane of gram-negative bacteria); TLR3/7/8/9 detect viral nucleic acids. Heavily targeted for vaccine adjuvants and sepsis drugs.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">STING &amp; cGAS</div>
-        <div class="feature-desc">STING (Stimulator of Interferon Genes) and its upstream sensor cGAS detect foreign or misplaced DNA inside a cell — a sign of viral infection or a cancer mutation. STING agonists are one of the most active areas in cancer immunotherapy right now, with several compounds in clinical trials.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">RIG-I &amp; MDA5</div>
-        <div class="feature-desc">These sensors sit inside the cell and detect double-stranded RNA — the kind that appears when a virus is replicating. Activating RIG-I or MDA5 triggers a strong antiviral interferon response. Drug candidates targeting these receptors are being explored for influenza, COVID-19, and RSV.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-title">Batch &amp; SAR support</div>
-        <div class="feature-desc">Upload a CSV of up to 20 compounds for any receptor target. Download results as a clean CSV for downstream SAR analysis. Name-to-SMILES lookup and an in-browser molecule drawer included.</div>
-      </div>
+  <div class="landing-inner">
+    <div class="section-header">
+      <div class="section-header-label">Receptor coverage</div>
+      <div class="section-header-title">Every major innate immune sensor</div>
     </div>
 
-    <hr class="divider">
-    <div class="section-title">Scientific basis</div>
-    <a class="paper-link" href="#" onclick="alert('Paper link — add your bioRxiv DOI here once published')">
+    <div class="receptor-grid">
+      <div class="receptor-card">
+        <div class="receptor-card-name">Toll-like receptors (TLR1–10)</div>
+        <div class="receptor-card-desc">The primary bacterial and viral sensors on immune cells. TLR1/2 and TLR2/6 detect lipopeptides; TLR4 detects LPS; TLR3/7/8/9 detect viral nucleic acids. Heavily targeted for vaccine adjuvants and sepsis drugs.</div>
+      </div>
+      <div class="receptor-card">
+        <div class="receptor-card-name">STING &amp; cGAS</div>
+        <div class="receptor-card-desc">STING and its upstream sensor cGAS detect foreign or misplaced DNA — a sign of viral infection or cancer mutation. STING agonists are one of the most active areas in cancer immunotherapy, with multiple compounds in clinical trials.</div>
+      </div>
+      <div class="receptor-card">
+        <div class="receptor-card-name">RIG-I &amp; MDA5</div>
+        <div class="receptor-card-desc">Intracellular sensors that detect double-stranded RNA produced during viral replication. Activating them triggers a strong antiviral interferon response. Drug candidates are being explored for influenza, COVID-19, and RSV.</div>
+      </div>
+      <div class="receptor-card">
+        <div class="receptor-card-name">ML + LLM analysis</div>
+        <div class="receptor-card-desc">TLR1/2, TLR2/6, and TLR4 use a trained XGBoost model (R²=0.71) for pIC50 prediction. All other receptors use expert LLM analysis with receptor-specific pharmacophore context and PDB reference structures.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-header">
+      <div class="section-header-label">Scientific basis</div>
+    </div>
+    <a class="paper-link" href="#" onclick="alert('Add your bioRxiv DOI here once published')">
       <div class="paper-link-icon">P</div>
       <div>
         <div class="paper-link-title">Rational Design of Pam3Cys-SNFKK: A GIPL-Inspired Lipopeptide Targeting the TLR2 Binding Interface</div>
         <div class="paper-link-sub">Ahmed Zeeshan · Independent Research · 2025</div>
       </div>
     </a>
-  </div>
 
-  <!-- SINGLE SCREENER PAGE -->
-  <div id="page-screener" class="hidden">
+    <div class="divider"></div>
+    <div style="text-align:center;color:var(--text3);font-size:13px">
+      Questions? <a href="mailto:zeeshatron@gmail.com" style="color:var(--accent);text-decoration:none">zeeshatron@gmail.com</a>
+    </div>
+  </div>
+</div>
+
+<!-- ─── SCREENER PAGE ─────────────────────────────────────── -->
+<div id="page-screener" class="hidden">
+  <div class="inner-page">
     <div class="card">
       <div class="card-label">Compound name lookup</div>
       <div class="lookup-row">
@@ -314,9 +484,9 @@
       </div>
       <div style="font-size:11px;color:var(--text3)">Searches PubChem — auto-fills SMILES below</div>
     </div>
+
     <div class="card">
       <div class="card-label">Target receptor</div>
-
       <div class="target-group">
         <div class="target-group-label">Toll-like receptors</div>
         <div class="target-pills-row">
@@ -332,7 +502,6 @@
           <button class="pill target-pill" id="target-TLR10" onclick="setTarget('TLR10')">TLR10</button>
         </div>
       </div>
-
       <div class="target-group">
         <div class="target-group-label">DNA sensors</div>
         <div class="target-pills-row">
@@ -340,7 +509,6 @@
           <button class="pill target-pill" id="target-cGAS" onclick="setTarget('cGAS')">cGAS</button>
         </div>
       </div>
-
       <div class="target-group">
         <div class="target-group-label">RNA sensors</div>
         <div class="target-pills-row">
@@ -348,21 +516,20 @@
           <button class="pill target-pill" id="target-MDA5" onclick="setTarget('MDA5')">MDA5</button>
         </div>
       </div>
-
       <div class="target-group" style="margin-bottom:0">
         <div class="target-group-label">General</div>
         <div class="target-pills-row">
           <button class="pill target-pill" id="target-general" onclick="setTarget('general')">General PRR binding</button>
         </div>
       </div>
-
       <div id="target-desc" style="font-size:11px;color:var(--text3);margin-top:10px">Pam3CSK4-type triacyl lipopeptides binding TLR1-TLR2 heterodimer (PDB: 2Z7X)</div>
     </div>
+
     <div class="card">
       <div class="card-label">SMILES input</div>
       <div class="row" style="margin-bottom:8px">
         <input type="text" id="smiles-input" placeholder="Paste SMILES or use lookup / draw above..." style="flex:1" />
-        <button class="btn" onclick="openDrawer()" title="Draw molecule">Draw</button>
+        <button class="btn" onclick="openDrawer()">Draw</button>
         <button class="btn btn-primary" onclick="runSingle()">Analyze →</button>
       </div>
       <div class="pills">
@@ -383,10 +550,10 @@
       <div class="card score-block" id="single-scores"></div>
       <div class="card" id="single-analysis"></div>
       <div class="card" id="single-flags"></div>
-      <div class="row" style="justify-content:flex-end;gap:8px;margin-top:-0.5rem">
-        <button class="btn btn-sm" id="btn-save-result" onclick="saveCurrentResult()" title="Save to history">Save result</button>
-        <button class="btn btn-sm" id="btn-export-json" onclick="exportResultJSON()" title="Download JSON">Export JSON</button>
-        <button class="btn btn-sm" id="btn-copy-link" onclick="copyResultLink()" title="Copy shareable link">Copy link</button>
+      <div class="row" style="justify-content:flex-end;gap:8px;margin-top:-0.25rem">
+        <button class="btn btn-sm" id="btn-save-result" onclick="saveCurrentResult()">Save result</button>
+        <button class="btn btn-sm" id="btn-export-json" onclick="exportResultJSON()">Export JSON</button>
+        <button class="btn btn-sm" id="btn-copy-link" onclick="copyResultLink()">Copy link</button>
       </div>
     </div>
 
@@ -394,17 +561,22 @@
       <div class="empty">Enter a SMILES string above and select a receptor to analyze binding potential</div>
     </div>
   </div>
+</div>
 
-  <!-- BATCH PAGE -->
-  <div id="page-batch" class="hidden">
+<!-- ─── BATCH PAGE ────────────────────────────────────────── -->
+<div id="page-batch" class="hidden">
+  <div class="inner-page">
+    <div class="inner-page-title">Batch screening</div>
+    <div class="inner-page-sub">Upload a CSV with a <span class="mono">smiles</span> column — up to 20 compounds per run.</div>
+
     <div class="card">
       <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
-        <div class="dz-icon">⌃</div>
+        <div class="dz-icon">↑</div>
         <div class="dz-label">Drop CSV here or click to browse</div>
-        <div class="dz-sub">Max 20 compounds · Required column: <span class="mono">smiles</span> · Optional: <span class="mono">name</span></div>
+        <div class="dz-sub">Max 20 compounds · Required: <span class="mono">smiles</span> · Optional: <span class="mono">name</span></div>
       </div>
       <input type="file" id="file-input" accept=".csv" style="display:none" onchange="handleFile(this)">
-      <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
         <span style="font-size:12px;color:var(--text3)">Or try demo:</span>
         <button class="btn btn-sm" onclick="loadDemo()">Load 5 example compounds</button>
       </div>
@@ -429,7 +601,7 @@
 
     <div id="batch-results" class="hidden card">
       <div class="row" style="justify-content:space-between;margin-bottom:12px">
-        <span style="font-size:13px;font-weight:500">Results</span>
+        <span style="font-size:14px;font-weight:600">Results</span>
         <div class="row">
           <button class="btn btn-sm btn-primary" onclick="downloadCSV()">Download CSV</button>
           <button class="btn btn-sm" onclick="resetBatch()">New batch</button>
@@ -457,42 +629,46 @@
       <div class="empty">Upload a CSV or load the demo to screen a compound library</div>
     </div>
   </div>
+</div>
 
-  <!-- HISTORY PAGE -->
-  <div id="page-history" class="hidden">
-    <div class="row" style="justify-content:space-between;margin-bottom:1.5rem;align-items:center">
+<!-- ─── HISTORY PAGE ──────────────────────────────────────── -->
+<div id="page-history" class="hidden">
+  <div class="inner-page">
+    <div class="row" style="justify-content:space-between;margin-bottom:1.75rem;align-items:flex-start">
       <div>
-        <div style="font-size:18px;font-weight:600;letter-spacing:-0.01em;margin-bottom:2px">Analysis history</div>
-        <div style="font-size:13px;color:var(--text2)">Saved locally in your browser — never leaves your device</div>
+        <div class="inner-page-title">Analysis history</div>
+        <div class="inner-page-sub" style="margin-bottom:0">Saved locally in your browser — never leaves your device</div>
       </div>
-      <div class="row">
+      <div class="row" style="margin-top:6px">
         <button class="btn btn-sm" onclick="exportHistoryCSV()">Export CSV</button>
         <button class="btn btn-sm" onclick="clearHistory()">Clear all</button>
       </div>
     </div>
     <div class="card" style="padding:0;overflow:hidden">
       <div id="history-list">
-        <div class="history-empty">No analyses saved yet. Run a screener analysis and click "Save result".</div>
+        <div class="history-empty">No analyses saved yet. Run a screener analysis and results will appear here automatically.</div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- PRICING PAGE -->
-  <div id="page-pricing" class="hidden">
-    <div style="text-align:center;margin-bottom:2rem">
-      <div style="font-size:24px;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px">Simple pricing</div>
-      <div style="font-size:14px;color:var(--text2)">For academic labs and small biotechs screening innate immune receptor candidates</div>
-    </div>
+<!-- ─── PRICING PAGE ──────────────────────────────────────── -->
+<div id="page-pricing" class="hidden">
+  <div class="inner-page">
+    <div class="inner-page-title">Pricing</div>
+    <div class="inner-page-sub">For academic labs and small biotechs screening innate immune receptor candidates.</div>
+
     <div class="pricing-grid">
       <div class="pricing-card">
         <div class="pricing-name">Free</div>
         <div class="pricing-price">$0 <span>/ month</span></div>
         <div class="pricing-desc">For individual researchers</div>
         <ul class="pricing-features">
-          <li>20 single-compound analyses/month</li>
-          <li>1 batch upload/month (5 compounds)</li>
+          <li>20 single-compound analyses / month</li>
+          <li>1 batch upload / month (5 compounds)</li>
           <li>Full pharmacophore report</li>
-          <li>CSV export</li>
+          <li>CSV + JSON export</li>
+          <li>Analysis history</li>
         </ul>
       </div>
       <div class="pricing-card featured">
@@ -501,7 +677,7 @@
         <div class="pricing-price">$50 <span>/ month</span></div>
         <div class="pricing-desc">For academic labs</div>
         <ul class="pricing-features">
-          <li>500 analyses/month</li>
+          <li>500 analyses / month</li>
           <li>Unlimited batch uploads (20 compounds)</li>
           <li>API access</li>
           <li>Priority support</li>
@@ -515,29 +691,30 @@
         <ul class="pricing-features">
           <li>Unlimited analyses</li>
           <li>Bulk batch (100 compounds)</li>
-          <li>Full API with higher rate limits</li>
+          <li>Full API + higher rate limits</li>
           <li>Custom pharmacophore models</li>
           <li>Dedicated support</li>
         </ul>
       </div>
     </div>
-    <div class="card" style="margin-top:1rem">
+
+    <div class="card">
       <div class="card-label">Have an API key?</div>
       <div style="display:flex;gap:8px;margin-bottom:8px">
-        <input type="text" id="apikey-input" placeholder="tlr2-xxxxxxxxxxxx" style="flex:1;font-family:var(--mono)" />
+        <input type="text" id="apikey-input" placeholder="sk-xxxxxxxxxxxx" style="flex:1;font-family:var(--mono)" />
         <button class="btn btn-primary" onclick="saveApiKey()">Save</button>
         <button class="btn" onclick="clearApiKey()">Clear</button>
       </div>
       <div id="apikey-status" style="font-size:12px;color:var(--text3)">Key is stored in your browser only and sent with each request.</div>
     </div>
-    <div class="card" style="margin-top:0.5rem;text-align:center">
-      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Want Lab or Biotech access?</div>
-      <a href="mailto:zeeshatron@gmail.com?subject=TLR2 Screener API Key Request" class="btn btn-primary" style="display:inline-flex">Email for a key →</a>
+    <div class="card" style="text-align:center">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:10px">Want Lab or Biotech access?</div>
+      <a href="mailto:zeeshatron@gmail.com?subject=ImmunoBind API Key Request" class="btn btn-primary" style="display:inline-flex">Email for a key →</a>
     </div>
   </div>
 </div>
 
-<!-- MOLECULE DRAW MODAL -->
+<!-- ─── MOLECULE DRAW MODAL ────────────────────────────────── -->
 <div class="modal-overlay hidden" id="draw-modal">
   <div class="modal">
     <div class="modal-header">
@@ -553,6 +730,95 @@
 </div>
 
 <script>
+// ─── PARTICLE CANVAS ────────────────────────────────────────
+(function initParticles() {
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], raf;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+
+  function mkParticle() {
+    return {
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 1.4 + 0.3,
+      vx: (Math.random() - 0.5) * 0.22,
+      vy: (Math.random() - 0.5) * 0.22,
+      a: Math.random() * 0.5 + 0.1,
+    };
+  }
+
+  function init() {
+    resize();
+    const n = Math.floor((W * H) / 8000);
+    particles = Array.from({length: n}, mkParticle);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+
+    // Glowing orb behind hero text
+    const cx = W * 0.5, cy = H * 0.42;
+    const t = Date.now() / 4000;
+    const ox = Math.sin(t) * 40, oy = Math.cos(t * 0.7) * 30;
+    const grad = ctx.createRadialGradient(cx+ox, cy+oy, 0, cx+ox, cy+oy, isDark ? W*0.38 : W*0.28);
+    if (isDark) {
+      grad.addColorStop(0, 'rgba(0,180,255,0.13)');
+      grad.addColorStop(0.4, 'rgba(100,40,220,0.07)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+    } else {
+      grad.addColorStop(0, 'rgba(0,153,181,0.07)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+    }
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Particles
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < -4) p.x = W+4;
+      if (p.x > W+4) p.x = -4;
+      if (p.y < -4) p.y = H+4;
+      if (p.y > H+4) p.y = -4;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = isDark
+        ? `rgba(180,190,230,${p.a * 0.55})`
+        : `rgba(0,100,130,${p.a * 0.3})`;
+      ctx.fill();
+    });
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); });
+  init();
+  draw();
+})();
+
+// ─── THEME ──────────────────────────────────────────────────
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('theme-toggle').textContent = t === 'dark' ? 'Light' : 'Dark';
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const next = cur === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('tlr2_theme', next);
+  applyTheme(next);
+}
+(function initTheme() {
+  const saved = localStorage.getItem('tlr2_theme');
+  const theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(theme);
+})();
+
+// ─── EXAMPLES ───────────────────────────────────────────────
 const EXAMPLES = {
   pam3csk4: "CCCCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCCCC)NC(=O)CCCCCCCCCCCCCCC",
   snfkk: "CCCCCCCCCCCCCCCC(=O)NCCSC[C@@H](NC(=O)CCCCCCCCCCCCCCC)C(=O)N[C@@H](CO)C(=O)N[C@@H](CC(N)=O)C(=O)N[C@@H](Cc1ccccc1)C(=O)N[C@@H](CCCCN)C(=O)N[C@@H](CCCCN)C(=O)O",
@@ -570,24 +836,7 @@ const DEMO = [
 
 let batchResults = [], batchQueue = [], batchProcessed = 0, batchTotal = 0;
 
-// --- Theme ---
-function applyTheme(t) {
-  document.documentElement.setAttribute('data-theme', t);
-  document.getElementById('theme-toggle').textContent = t === 'dark' ? 'Light' : 'Dark';
-}
-function toggleTheme() {
-  const cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-  const next = cur === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('tlr2_theme', next);
-  applyTheme(next);
-}
-(function initTheme() {
-  const saved = localStorage.getItem('tlr2_theme');
-  const theme = saved || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  applyTheme(theme);
-})();
-
-// --- Target selector ---
+// ─── TARGET SELECTOR ────────────────────────────────────────
 const TARGET_DESCS = {
   'TLR1/2':  'Pam3CSK4-type triacyl lipopeptides binding TLR1-TLR2 heterodimer (PDB: 2Z7X)',
   'TLR2/6':  'FSL-1/MALP-2-type diacyl lipopeptides binding TLR2-TLR6 heterodimer',
@@ -605,8 +854,6 @@ const TARGET_DESCS = {
   'MDA5':    'Long dsRNA ligands / agonists of MDA5 filament assembly (PDB: 4GL2)',
   'general': 'General innate immune PRR binding — no specific receptor assumed',
 };
-
-// Receptors with a trained ML model (pIC50 from XGBoost)
 const TARGET_HAS_ML = new Set(['TLR1/2', 'TLR2/6', 'TLR4']);
 
 let _target = 'TLR1/2';
@@ -617,7 +864,7 @@ function setTarget(t) {
   document.getElementById('target-desc').textContent = TARGET_DESCS[t];
 }
 
-// --- API key helpers ---
+// ─── API KEY ────────────────────────────────────────────────
 function getApiKey() { return localStorage.getItem('tlr2_api_key') || ''; }
 function saveApiKey() {
   const v = document.getElementById('apikey-input').value.trim();
@@ -636,13 +883,17 @@ function apiFetch(url, opts = {}) {
   return fetch(url, opts);
 }
 
-// --- Usage badge ---
+// ─── USAGE BADGE ────────────────────────────────────────────
 async function refreshUsage() {
   try {
     const res = await apiFetch('/api/usage');
     const d = await res.json();
     const badge = document.getElementById('usage-badge');
-    if (d.kv_unavailable || d.limit === null) { badge.textContent = 'unlimited'; badge.title = 'Rate limiting not configured — KV store not connected'; badge.className = 'usage-badge'; return; }
+    if (d.kv_unavailable || d.limit === null) {
+      badge.textContent = 'unlimited';
+      badge.title = 'Rate limiting not configured — KV store not connected';
+      badge.className = 'usage-badge'; return;
+    }
     badge.textContent = `${d.used} / ${d.limit}`;
     badge.className = 'usage-badge' + (d.used >= d.limit ? ' over' : d.used >= d.limit * 0.8 ? ' warn' : '');
     if (d.tier !== 'free') badge.title = `${d.tier} plan · ${d.used}/${d.limit} queries this month`;
@@ -650,15 +901,14 @@ async function refreshUsage() {
 }
 
 function showQuotaBanner(el) {
-  const existing = document.getElementById('quota-banner');
-  if (existing) return;
+  if (document.getElementById('quota-banner')) return;
   const banner = document.createElement('div');
-  banner.id = 'quota-banner';
-  banner.className = 'quota-banner';
-  banner.innerHTML = `<span>Monthly free limit reached (20 queries). <a href="#" onclick="showPage('pricing')">Add an API key</a> for more.</span><button class="btn btn-sm" onclick="document.getElementById('quota-banner').remove()">Close</button>`;
+  banner.id = 'quota-banner'; banner.className = 'quota-banner';
+  banner.innerHTML = `<span>Monthly free limit reached (20 queries). <a href="#" onclick="showPage('pricing')">Add an API key</a> for more.</span><button class="btn btn-sm" onclick="this.parentNode.remove()">Dismiss</button>`;
   el.parentNode.insertBefore(banner, el);
 }
 
+// ─── PAGE NAV ────────────────────────────────────────────────
 function showPage(page) {
   ['landing','screener','batch','history','pricing'].forEach(p => {
     document.getElementById('page-'+p).classList.add('hidden');
@@ -668,12 +918,19 @@ function showPage(page) {
   document.getElementById('page-'+page).classList.remove('hidden');
   const nav = document.getElementById('nav-'+page);
   if (nav) nav.classList.add('active');
+  if (page === 'history') renderHistoryPage();
+  if (page === 'pricing') {
+    const k = getApiKey();
+    document.getElementById('apikey-input').value = k;
+    document.getElementById('apikey-status').textContent = k ? 'Key loaded from browser storage.' : 'Key is stored in your browser only and sent with each request.';
+  }
 }
 
 function loadEx(key) {
   document.getElementById('smiles-input').value = EXAMPLES[key];
 }
 
+// ─── SINGLE ANALYSIS ────────────────────────────────────────
 async function runSingle() {
   const smiles = document.getElementById('smiles-input').value.trim();
   if (!smiles) return;
@@ -682,7 +939,6 @@ async function runSingle() {
   document.getElementById('single-loading').classList.remove('hidden');
 
   try {
-    // Try ML model first; fall back to LLM if unavailable
     let mlData = null;
     try {
       const mlRes = await apiFetch('/api/predict', {method:'POST', body:JSON.stringify({smiles, name:'Query molecule', target:_target})});
@@ -698,7 +954,6 @@ async function runSingle() {
 
     let r;
     if (mlData) {
-      // ML scores + LLM expert analysis text
       r = {
         ...mlData,
         analysis: llm.analysis || '',
@@ -709,16 +964,13 @@ async function runSingle() {
         lipopeptide_class: llm.lipopeptide_class || '',
       };
     } else {
-      // LLM-only fallback: map scores to pIC50-style display
       const score = llm.tlr2_binding_score || 0;
       const pic50 = 2 + (score / 100) * 7;
       r = {
         ...llm,
         pIC50: parseFloat(pic50.toFixed(2)),
         IC50_nM: parseFloat((Math.pow(10, -pic50 + 9)).toFixed(1)),
-        model_name: 'LLM',
-        model_r2: null,
-        acyl_chains: llm.has_lipid_anchor ? 2 : 0,
+        model_name: 'LLM', model_r2: null, acyl_chains: llm.has_lipid_anchor ? 2 : 0,
       };
     }
     renderSingle(r);
@@ -731,9 +983,9 @@ async function runSingle() {
 }
 
 function barColor(s) {
-  if (s >= 70) return '#22c55e';
-  if (s >= 40) return '#f59e0b';
-  return '#ef4444';
+  if (s >= 70) return '#10d97a';
+  if (s >= 40) return '#f0a030';
+  return '#f04040';
 }
 
 function renderSingle(r) {
@@ -747,7 +999,7 @@ function renderSingle(r) {
   `;
 
   document.getElementById('single-scores').innerHTML = `
-    <div class="score-row"><span>TLR2 binding score</span><span>${r.tlr2_binding_score}/100</span></div>
+    <div class="score-row"><span>Binding score</span><span>${r.tlr2_binding_score}/100</span></div>
     <div class="bar"><div class="bar-fill" style="width:${r.tlr2_binding_score}%;background:${barColor(r.tlr2_binding_score)}"></div></div>
     <div class="score-row"><span>Pharmacophore match (PDB: 2Z7X)</span><span>${r.pharmacophore_match}/100</span></div>
     <div class="bar"><div class="bar-fill" style="width:${r.pharmacophore_match}%;background:${barColor(r.pharmacophore_match)}"></div></div>
@@ -772,10 +1024,10 @@ function renderSingle(r) {
   document.getElementById('single-flags').innerHTML = `<div class="card-label">Drug-likeness flags</div><div class="flags">${flags}</div>`;
 
   document.getElementById('single-results').classList.remove('hidden');
-  // Auto-save to history
   autoSaveResult(r, document.getElementById('smiles-input').value.trim(), r.molecule_name || 'Query', _target);
 }
 
+// ─── BATCH ───────────────────────────────────────────────────
 function loadDemo() { batchQueue = [...DEMO]; startBatch(); }
 
 function handleFile(input) {
@@ -808,7 +1060,7 @@ function startBatch() {
 function updateBatchProgress() {
   document.getElementById('progress-count').textContent = batchProcessed+' / '+batchTotal;
   document.getElementById('progress-fill').style.width = (batchTotal?Math.round(batchProcessed/batchTotal*100):0)+'%';
-  document.getElementById('progress-text').textContent = batchProcessed < batchTotal ? 'Analyzing '+( batchQueue[batchProcessed]?.name||'compound')+'...' : 'Done';
+  document.getElementById('progress-text').textContent = batchProcessed < batchTotal ? 'Analyzing '+(batchQueue[batchProcessed]?.name||'compound')+'...' : 'Done';
 }
 
 async function processBatchNext() {
@@ -824,18 +1076,16 @@ async function processBatchNext() {
 }
 
 async function analyzeBatchOne(smiles, name) {
-  // Try ML endpoint, fall back to LLM
   try {
     const res = await apiFetch('/api/predict', {method:'POST', body:JSON.stringify({smiles, name})});
     const d = await res.json();
-    if (res.status === 429) return {molecule_name:name, smiles, input_name:name, verdict:'low', verdict_text:'Quota reached', pIC50:0, IC50_nM:null, mw_estimate:0, logp_estimate:0, tlr2_binding_score:0, pharmacophore_match:0, error:true, quota_exceeded:true};
+    if (res.status === 429) return {molecule_name:name, smiles, input_name:name, verdict:'low', verdict_text:'Quota reached', pIC50:0, IC50_nM:null, mw_estimate:0, logp_estimate:0, tlr2_binding_score:0, pharmacophore_match:0, error:true};
     if (res.ok && !d.unavailable && !d.error) return {...d, smiles, input_name:name, error:false};
   } catch(_) {}
-  // LLM fallback
   try {
     const res = await apiFetch('/api/analyze', {method:'POST', body:JSON.stringify({smiles, name, mode:'batch'})});
     const d = await res.json();
-    if (res.status === 429) return {molecule_name:name, smiles, input_name:name, verdict:'low', verdict_text:'Quota reached', pIC50:0, IC50_nM:null, mw_estimate:0, logp_estimate:0, tlr2_binding_score:0, pharmacophore_match:0, error:true, quota_exceeded:true};
+    if (res.status === 429) return {molecule_name:name, smiles, input_name:name, verdict:'low', verdict_text:'Quota reached', pIC50:0, IC50_nM:null, mw_estimate:0, logp_estimate:0, tlr2_binding_score:0, pharmacophore_match:0, error:true};
     const score = d.tlr2_binding_score || 0;
     const pic50 = parseFloat((2 + (score/100)*7).toFixed(2));
     return {...d, smiles, input_name:name, pIC50:pic50, IC50_nM:parseFloat(Math.pow(10,-pic50+9).toFixed(1)), error:false};
@@ -872,7 +1122,7 @@ function downloadCSV() {
   const headers = ['name','smiles','pIC50','IC50_nM','tlr2_binding_score','mw_estimate','logp_estimate','acyl_chains','verdict','verdict_text'];
   const rows = batchResults.map(r=>headers.map(h=>{const v=r[h]??''; return typeof v==='string'&&v.includes(',')?`"${v}"`:v;}).join(','));
   const csv = [headers.join(','),...rows].join('\n');
-  const a = document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='tlr2_results.csv'; a.click();
+  const a = document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='immunobind_results.csv'; a.click();
 }
 
 function resetBatch() {
@@ -896,70 +1146,43 @@ dz.addEventListener('drop', e=>{
 
 document.getElementById('smiles-input').addEventListener('keydown', e=>{ if(e.key==='Enter') runSingle(); });
 
-// (pricing population now handled in the unified showPage override at the bottom)
-
-// --- JSME molecule drawer ---
-var _jsmeApplet = null;
-var _jsmeReady = false;
-
+// ─── JSME DRAWER ─────────────────────────────────────────────
+var _jsmeApplet = null, _jsmeReady = false;
 function jsmeOnLoad() {
   _jsmeReady = true;
-  if (document.getElementById('draw-modal') && !document.getElementById('draw-modal').classList.contains('hidden')) {
-    _initJsme();
-  }
+  if (!document.getElementById('draw-modal').classList.contains('hidden')) _initJsme();
 }
-
 function _initJsme() {
   if (_jsmeApplet) return;
-  _jsmeApplet = new JSApplet.JSME('jsme-container', '420px', '340px', {
-    options: 'hydrogens,newlook,nostereo'
-  });
+  _jsmeApplet = new JSApplet.JSME('jsme-container', '420px', '340px', {options:'hydrogens,newlook,nostereo'});
 }
-
 function openDrawer() {
   document.getElementById('draw-modal').classList.remove('hidden');
   if (_jsmeReady) _initJsme();
-  // Pre-load current SMILES into drawer if one exists
   const cur = document.getElementById('smiles-input').value.trim();
-  if (cur && _jsmeApplet) {
-    try { _jsmeApplet.readMolecule(cur); } catch(_) {}
-  }
+  if (cur && _jsmeApplet) { try { _jsmeApplet.readMolecule(cur); } catch(_) {} }
 }
-
-function closeDrawer() {
-  document.getElementById('draw-modal').classList.add('hidden');
-}
-
+function closeDrawer() { document.getElementById('draw-modal').classList.add('hidden'); }
 function confirmDraw() {
   if (_jsmeApplet) {
     const smi = _jsmeApplet.smiles();
-    if (smi && smi !== '*' && smi.length > 1) {
-      document.getElementById('smiles-input').value = smi;
-    }
+    if (smi && smi !== '*' && smi.length > 1) document.getElementById('smiles-input').value = smi;
   }
   closeDrawer();
 }
+document.getElementById('draw-modal').addEventListener('click', function(e) { if (e.target === this) closeDrawer(); });
 
-// Close modal on overlay click
-document.getElementById('draw-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeDrawer();
-});
-
-// --- PubChem name lookup ---
+// ─── PUBCHEM LOOKUP ───────────────────────────────────────────
 async function lookupByName() {
   const name = document.getElementById('name-lookup').value.trim();
   if (!name) return;
   const btn = document.getElementById('lookup-btn');
   const orig = btn.textContent;
-  btn.textContent = 'Searching...';
-  btn.disabled = true;
-
-  // Local overrides for known compounds PubChem indexes poorly
+  btn.textContent = 'Searching...'; btn.disabled = true;
   const LOCAL = {
-    'pam3csk4': 'CCCCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCCCC)NC(=O)CCCCCCCCCCCCCCC',
-    'pam3cys-snfkk': 'CCCCCCCCCCCCCCCC(=O)NCCSC[C@@H](NC(=O)CCCCCCCCCCCCCCC)C(=O)N[C@@H](CO)C(=O)N[C@@H](CC(N)=O)C(=O)N[C@@H](Cc1ccccc1)C(=O)N[C@@H](CCCCN)C(=O)N[C@@H](CCCCN)C(=O)O',
-    'fsl-1': 'CCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCC)NC(=O)[C@@H](N)CC(C)C',
-    'fsl1': 'CCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCC)NC(=O)[C@@H](N)CC(C)C',
+    'pam3csk4': EXAMPLES.pam3csk4,
+    'pam3cys-snfkk': EXAMPLES.snfkk,
+    'fsl-1': EXAMPLES.fsl1, 'fsl1': EXAMPLES.fsl1,
     'pam2csk4': 'CCCCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCCCC)NC(=O)[C@@H](N)CCCCN',
   };
   const key = name.toLowerCase().replace(/\s+/g, '');
@@ -969,8 +1192,6 @@ async function lookupByName() {
     setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 2000);
     return;
   }
-
-  // Proxy through our own API to avoid PubChem CORS restrictions
   try {
     const res = await fetch(`/api/pubchem?name=${encodeURIComponent(name)}`);
     const d = await res.json();
@@ -981,70 +1202,46 @@ async function lookupByName() {
       return;
     }
   } catch(_) {}
-
   btn.textContent = 'Not found'; btn.style.color = 'var(--red)';
   setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.disabled = false; }, 4000);
 }
-
 document.getElementById('name-lookup').addEventListener('keydown', e => { if (e.key === 'Enter') lookupByName(); });
 
-// --- History ---
+// ─── HISTORY ─────────────────────────────────────────────────
 const HISTORY_KEY = 'immunobind_history';
 const HISTORY_MAX = 50;
+function getHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch(_) { return []; } }
+function saveHistory(h) { localStorage.setItem(HISTORY_KEY, JSON.stringify(h)); }
 
-function getHistory() {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch(_) { return []; }
-}
-
-function saveHistory(h) {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
-}
-
-// Auto-save is called from renderSingle; _lastResult holds current data
-let _lastResult = null;
-let _lastSmiles = '';
-let _lastName = '';
+let _lastResult = null, _lastSmiles = '', _lastName = '';
 
 function autoSaveResult(result, smiles, name, target) {
-  _lastResult = result;
-  _lastSmiles = smiles;
-  _lastName = name;
-  // Auto-save each analysis to history
+  _lastResult = result; _lastSmiles = smiles; _lastName = name;
   const entry = {
-    id: Date.now(),
-    date: new Date().toISOString(),
+    id: Date.now(), date: new Date().toISOString(),
     name: result.molecule_name || name || 'Unknown',
-    smiles,
-    target,
-    verdict: result.verdict,
-    verdict_text: result.verdict_text,
+    smiles, target,
+    verdict: result.verdict, verdict_text: result.verdict_text,
     tlr2_binding_score: result.tlr2_binding_score,
     pharmacophore_match: result.pharmacophore_match,
-    pIC50: result.pIC50,
-    IC50_nM: result.IC50_nM,
-    mw_estimate: result.mw_estimate,
-    logp_estimate: result.logp_estimate,
-    analysis: result.analysis || '',
-    flags: result.flags || [],
+    pIC50: result.pIC50, IC50_nM: result.IC50_nM,
+    mw_estimate: result.mw_estimate, logp_estimate: result.logp_estimate,
+    analysis: result.analysis || '', flags: result.flags || [],
     lipopeptide_class: result.lipopeptide_class || '',
   };
   const h = getHistory();
   h.unshift(entry);
   if (h.length > HISTORY_MAX) h.length = HISTORY_MAX;
   saveHistory(h);
-  // Flash the save button to indicate auto-save
   const btn = document.getElementById('btn-save-result');
   if (btn) { btn.textContent = 'Saved'; btn.style.color = 'var(--green)'; setTimeout(() => { btn.textContent = 'Save result'; btn.style.color = ''; }, 1800); }
 }
 
-function saveCurrentResult() {
-  if (!_lastResult) return;
-  autoSaveResult(_lastResult, _lastSmiles, _lastName, _target);
-}
+function saveCurrentResult() { if (_lastResult) autoSaveResult(_lastResult, _lastSmiles, _lastName, _target); }
 
 function exportResultJSON() {
   if (!_lastResult) return;
-  const blob = new Blob([JSON.stringify({..._lastResult, smiles: _lastSmiles, target: _target}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({..._lastResult, smiles:_lastSmiles, target:_target}, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
   a.download = `immunobind_${(_lastResult.molecule_name||'result').replace(/\s+/g,'_')}.json`; a.click();
 }
@@ -1056,9 +1253,7 @@ function copyResultLink() {
   navigator.clipboard?.writeText(url).then(() => {
     const btn = document.getElementById('btn-copy-link');
     if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy link'; }, 2000); }
-  }).catch(() => {
-    prompt('Copy this link:', url);
-  });
+  }).catch(() => { prompt('Copy this link:', url); });
 }
 
 function renderHistoryPage() {
@@ -1073,7 +1268,7 @@ function renderHistoryPage() {
       <div>
         <div class="history-item-name">${e.name}</div>
         <div class="history-item-meta">${e.target} · ${new Date(e.date).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
-        <div class="history-item-meta" style="margin-top:3px;font-family:var(--mono);font-size:10px;color:var(--text3)">${e.smiles.length>40?e.smiles.slice(0,40)+'…':e.smiles}</div>
+        <div class="history-item-meta" style="margin-top:3px;font-family:var(--mono);font-size:10px">${e.smiles.length>40?e.smiles.slice(0,40)+'…':e.smiles}</div>
       </div>
       <div class="history-item-right">
         <span class="verdict ${e.verdict}" style="font-size:11px">${e.verdict_text||e.verdict}</span>
@@ -1084,26 +1279,19 @@ function renderHistoryPage() {
 }
 
 function loadHistoryEntry(id) {
-  const h = getHistory();
-  const e = h.find(x => x.id === id);
+  const e = getHistory().find(x => x.id === id);
   if (!e) return;
   document.getElementById('smiles-input').value = e.smiles;
   setTarget(e.target);
   showPage('screener');
-  // Render the saved result directly
   const r = {
-    molecule_name: e.name,
-    smiles: e.smiles,
-    verdict: e.verdict,
-    verdict_text: e.verdict_text,
+    molecule_name: e.name, smiles: e.smiles,
+    verdict: e.verdict, verdict_text: e.verdict_text,
     tlr2_binding_score: e.tlr2_binding_score,
     pharmacophore_match: e.pharmacophore_match,
-    pIC50: e.pIC50,
-    IC50_nM: e.IC50_nM,
-    mw_estimate: e.mw_estimate,
-    logp_estimate: e.logp_estimate,
-    analysis: e.analysis,
-    flags: e.flags || [],
+    pIC50: e.pIC50, IC50_nM: e.IC50_nM,
+    mw_estimate: e.mw_estimate, logp_estimate: e.logp_estimate,
+    analysis: e.analysis, flags: e.flags || [],
     lipopeptide_class: e.lipopeptide_class || '',
     asn294_contact: false, phe349_contact: false, has_lipid_anchor: false,
     model_name: 'LLM', model_r2: null, acyl_chains: 0,
@@ -1117,8 +1305,7 @@ function exportHistoryCSV() {
   if (!h.length) return;
   const hdrs = ['date','name','smiles','target','verdict','tlr2_binding_score','pharmacophore_match','pIC50','IC50_nM','mw_estimate','logp_estimate'];
   const rows = h.map(e => hdrs.map(k => { const v = e[k]??''; return typeof v==='string'&&v.includes(',') ? `"${v}"` : v; }).join(','));
-  const csv = [hdrs.join(','),...rows].join('\n');
-  const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download = 'immunobind_history.csv'; a.click();
+  const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent([hdrs.join(','),...rows].join('\n')); a.download = 'immunobind_history.csv'; a.click();
 }
 
 function clearHistory() {
@@ -1127,7 +1314,6 @@ function clearHistory() {
   renderHistoryPage();
 }
 
-// Handle shared result links (#r=...)
 function checkSharedLink() {
   const hash = location.hash;
   if (!hash.startsWith('#r=')) return;
@@ -1142,18 +1328,6 @@ function checkSharedLink() {
     }
   } catch(_) {}
 }
-
-// Patch showPage to render history when visited
-const __showPage = showPage;
-window.showPage = function(page) {
-  __showPage(page);
-  if (page === 'history') renderHistoryPage();
-  if (page === 'pricing') {
-    const k = getApiKey();
-    document.getElementById('apikey-input').value = k;
-    document.getElementById('apikey-status').textContent = k ? 'Key loaded from browser storage.' : 'Key is stored in your browser only and sent with each request.';
-  }
-};
 
 refreshUsage();
 checkSharedLink();
