@@ -481,6 +481,7 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
     <a class="nav-link active" href="#" id="nav-screener" onclick="showPage('screener')">Screener</a>
     <a class="nav-link" href="#" id="nav-batch" onclick="showPage('batch')">Batch</a>
     <a class="nav-link" href="#" id="nav-history" onclick="showPage('history')">History</a>
+    <a class="nav-link" href="#" id="nav-validate" onclick="showPage('validate')">Validate</a>
     <a class="nav-link" href="#" id="nav-pricing" onclick="showPage('pricing')">Pricing</a>
     <span class="usage-badge" id="usage-badge" title="Queries used this month">- / 20</span>
     <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">Light</button>
@@ -825,6 +826,39 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
     </div>
   </div>
 </div>
+
+<!-- ─── VALIDATE PAGE ──────────────────────────────────────── -->
+<div id="page-validate" class="hidden">
+    <div style="margin-bottom:2rem">
+      <div style="font-size:24px;font-weight:700;letter-spacing:-0.02em;margin-bottom:6px">Benchmark validation</div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.6;max-width:580px">Five compounds with known experimental activity, run through ImmunoBind. Green = model agrees with literature; amber = partial match; red = disagreement. Click any row to run a live analysis.</div>
+    </div>
+
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-label">What this tests</div>
+      <div class="analysis-text">A screening tool is only as trustworthy as its ability to correctly rank compounds we already know the answer to. These five compounds span the receptor families covered by ImmunoBind, with published IC50 or EC50 values from peer-reviewed literature. The tool should score agonists high and negative controls low — if it doesn't, that's a signal to distrust a result.</div>
+    </div>
+
+    <div id="val-grid" style="display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1.25rem">
+      <!-- rows injected by JS -->
+    </div>
+
+    <div class="card" id="val-live-result" style="display:none">
+      <div class="card-label">Live result</div>
+      <div id="val-live-body"></div>
+    </div>
+
+    <div class="card" style="margin-top:0">
+      <div class="card-label">Literature sources</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.8">
+        <div>Pam3CSK4 TLR1/2 EC50 ~0.1–1 ng/mL — Aliprantis et al. <em>Science</em> 1999; Jin et al. <em>Cell</em> 2007 (PDB 2Z7X).</div>
+        <div>FSL-1 TLR2/6 EC50 ~0.1–10 ng/mL — Okusawa et al. <em>J Immunol</em> 2004.</div>
+        <div>Lipid A TLR4 EC50 ~1–10 ng/mL — Park et al. <em>Science</em> 2009 (PDB 3FXI).</div>
+        <div>diABZI STING EC50 ~0.03–3 nM — Pan et al. <em>Nature Chemical Biology</em> 2020.</div>
+        <div>Aspirin — no TLR agonist activity; used as a negative control across all targets.</div>
+      </div>
+    </div>
+  </div>
 
 <!-- ─── PRICING PAGE ──────────────────────────────────────── -->
 <div id="page-pricing" class="hidden">
@@ -1236,7 +1270,7 @@ function showQuotaBanner(el) {
 
 // ─── PAGE NAV ────────────────────────────────────────────────
 function showPage(page) {
-  ['landing','screener','batch','history','pricing'].forEach(p => {
+  ['landing','screener','batch','history','validate','pricing'].forEach(p => {
     document.getElementById('page-'+p).classList.add('hidden');
     const nav = document.getElementById('nav-'+p);
     if (nav) nav.classList.remove('active');
@@ -1245,6 +1279,7 @@ function showPage(page) {
   const nav = document.getElementById('nav-'+page);
   if (nav) nav.classList.add('active');
   if (page === 'history') renderHistoryPage();
+  if (page === 'validate') initValidatePage();
   if (page === 'pricing') {
     const k = getApiKey();
     document.getElementById('apikey-input').value = k;
@@ -1653,6 +1688,132 @@ function checkSharedLink() {
       history.replaceState(null, '', location.pathname);
     }
   } catch(_) {}
+}
+
+const BENCHMARKS = [
+  {
+    name: 'Pam3CSK4',
+    target: 'TLR1/2',
+    smiles: 'CCCCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCCCC)NC(=O)CCCCCCCCCCCCCCC',
+    expectedVerdict: 'high',
+    litActivity: 'EC50 ~0.1–1 ng/mL (strong TLR1/2 agonist)',
+    litSource: 'Jin et al. Cell 2007',
+    note: 'Reference triacyl lipopeptide agonist',
+  },
+  {
+    name: 'FSL-1',
+    target: 'TLR2/6',
+    smiles: 'CCCCCCCCCCCCCC(=O)NCCS[C@@H](COC(=O)CCCCCCCCCCCCC)NC(=O)[C@@H](N)CC(C)C',
+    expectedVerdict: 'high',
+    litActivity: 'EC50 ~0.1–10 ng/mL (strong TLR2/6 agonist)',
+    litSource: 'Okusawa et al. J Immunol 2004',
+    note: 'Reference diacyl lipopeptide agonist',
+  },
+  {
+    name: 'Lipid A (analogue)',
+    target: 'TLR4',
+    smiles: 'CCCCCCCCCCCC(=O)OC[C@H](NC(=O)CCCCCCCCCCC)[C@@H](OC(=O)CCCCCCCCCCCC)COP(=O)(O)O',
+    expectedVerdict: 'high',
+    litActivity: 'EC50 ~1–10 ng/mL (potent TLR4 agonist)',
+    litSource: 'Park et al. Science 2009',
+    note: 'Reference LPS-mimetic; PDB 3FXI',
+  },
+  {
+    name: 'diABZI (STING agonist)',
+    target: 'STING',
+    smiles: 'CC1=CC2=C(N1CC(=O)NC3=NC4=C(C=CC4=C3)C(=O)NC5=CC=CC=C5)C=CN2',
+    expectedVerdict: 'high',
+    litActivity: 'EC50 ~0.03–3 nM (potent STING agonist)',
+    litSource: 'Pan et al. Nature Chem Biol 2020',
+    note: 'Non-nucleotide STING agonist in clinical development',
+  },
+  {
+    name: 'Aspirin (negative control)',
+    target: 'TLR1/2',
+    smiles: 'CC(=O)Oc1ccccc1C(=O)O',
+    expectedVerdict: 'low',
+    litActivity: 'No TLR agonist activity',
+    litSource: 'Negative control',
+    note: 'Should score low on any immune receptor target',
+  },
+];
+
+let _valInitialized = false;
+
+function initValidatePage() {
+  if (_valInitialized) return;
+  _valInitialized = true;
+  const grid = document.getElementById('val-grid');
+  BENCHMARKS.forEach((b, i) => {
+    const row = document.createElement('div');
+    row.id = `val-row-${i}`;
+    row.style.cssText = 'background:var(--bg2);padding:1.1rem 1.25rem;display:grid;grid-template-columns:160px 1fr auto auto;align-items:center;gap:1rem;cursor:pointer;';
+    row.onmouseenter = () => row.style.background = 'var(--bg3)';
+    row.onmouseleave = () => row.style.background = 'var(--bg2)';
+    row.onclick = () => runValidation(i);
+    row.innerHTML = `
+      <div style="min-width:140px">
+        <div style="font-size:13px;font-weight:600">${b.name}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${b.target} · ${b.note}</div>
+      </div>
+      <div style="flex:1;min-width:180px">
+        <div style="font-size:12px;color:var(--text2)">${b.litActivity}</div>
+        <div style="font-size:11px;color:var(--text3)">${b.litSource}</div>
+      </div>
+      <div style="min-width:90px;text-align:right">
+        <span class="verdict ${b.expectedVerdict}" style="font-size:11px">Expected: ${b.expectedVerdict}</span>
+      </div>
+      <div id="val-status-${i}" style="min-width:110px;text-align:right;font-size:12px;color:var(--text3)">Click to test</div>
+    `;
+    grid.appendChild(row);
+  });
+}
+
+async function runValidation(i) {
+  const b = BENCHMARKS[i];
+  const statusEl = document.getElementById(`val-status-${i}`);
+  statusEl.innerHTML = '<span style="color:var(--text2)">Running...</span>';
+
+  const liveResult = document.getElementById('val-live-result');
+  const liveBody = document.getElementById('val-live-body');
+  liveResult.style.display = 'none';
+
+  try {
+    const res = await apiFetch('/api/analyze', {
+      method: 'POST',
+      body: JSON.stringify({ smiles: b.smiles, name: b.name, mode: 'single', target: b.target })
+    });
+    const d = await res.json();
+    if (!res.ok || d.error) throw new Error(d.error || 'API error');
+
+    const verdict = d.verdict || 'low';
+    const match = verdict === b.expectedVerdict;
+    const partialMatch = (b.expectedVerdict === 'high' && verdict === 'medium') || (b.expectedVerdict === 'low' && verdict === 'medium');
+    const statusColor = match ? 'var(--green)' : partialMatch ? 'var(--amber)' : 'var(--red)';
+    const statusLabel = match ? 'Agrees' : partialMatch ? 'Partial' : 'Disagrees';
+
+    statusEl.innerHTML = `<span style="color:${statusColor};font-weight:600">${statusLabel}</span><br><span style="color:var(--text3);font-size:11px">Got: ${verdict} (score ${d.tlr2_binding_score}/100)</span>`;
+
+    liveBody.innerHTML = `
+      <div style="margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <strong>${b.name}</strong>
+        <span style="font-size:12px;color:var(--text2)">Target: ${b.target}</span>
+        <span class="verdict ${verdict}" style="font-size:11px">${d.verdict_text || verdict}</span>
+        <span style="font-size:11px;color:${statusColor};font-weight:600">${statusLabel} with literature</span>
+      </div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7">${d.analysis || ''}</div>
+      <div style="margin-top:10px;display:flex;gap:1.5rem;font-size:12px;color:var(--text3)">
+        <span>Binding score: <strong style="color:var(--text)">${d.tlr2_binding_score}/100</strong></span>
+        <span>Pharmacophore: <strong style="color:var(--text)">${d.pharmacophore_match}/100</strong></span>
+        <span>MW: <strong style="color:var(--text)">${d.mw_estimate}</strong></span>
+        <span>LogP: <strong style="color:var(--text)">${(d.logp_estimate||0).toFixed(1)}</strong></span>
+      </div>
+    `;
+    liveResult.style.display = 'block';
+    refreshUsage();
+  } catch(e) {
+    statusEl.innerHTML = `<span style="color:var(--red);font-size:11px">${e.message}</span>`;
+  }
 }
 
 refreshUsage();
