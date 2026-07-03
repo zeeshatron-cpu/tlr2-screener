@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ImmunoBind — Innate Immune Receptor Screening</title>
+<title>ImmunoBind - Innate Immune Receptor Screening</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script src="https://jsme-editor.github.io/dist/jsme/jsme.nocache.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -318,7 +318,7 @@ tr:hover td { background: var(--bg3); }
 /* ─── LANDING ─────────────────────────────────────────── */
 #page-landing { position: relative; overflow: hidden; }
 
-/* HERO — two-column split */
+/* HERO - two-column split */
 .hero-section {
   position: relative; z-index: 1;
   display: grid; grid-template-columns: 1fr 1fr;
@@ -482,7 +482,7 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
     <a class="nav-link" href="#" id="nav-batch" onclick="showPage('batch')">Batch</a>
     <a class="nav-link" href="#" id="nav-history" onclick="showPage('history')">History</a>
     <a class="nav-link" href="#" id="nav-pricing" onclick="showPage('pricing')">Pricing</a>
-    <span class="usage-badge" id="usage-badge" title="Queries used this month">— / 20</span>
+    <span class="usage-badge" id="usage-badge" title="Queries used this month">- / 20</span>
     <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">Light</button>
   </div>
 </nav>
@@ -493,12 +493,12 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
   <!-- HERO: two-column -->
   <section class="hero-section">
     <div class="hero-left">
-      <div class="hero-badge">TLR1–10 &middot; STING &middot; cGAS &middot; RIG-I &middot; MDA5</div>
+      <div class="hero-badge">TLR1-10 &middot; STING &middot; cGAS &middot; RIG-I &middot; MDA5</div>
       <h1 class="hero-title">
         Innate immune<br>receptor screening,<br><span class="accent-word">without the wait.</span>
       </h1>
       <p class="hero-sub">
-        Predict binding strength for any of 14 innate immune receptors in under 2&nbsp;seconds. Stop running AutoDock Vina manually &mdash; filter your entire candidate library before you synthesize a single compound.
+        Predict binding strength for any of 14 innate immune receptors in under 2&nbsp;seconds. Stop running AutoDock Vina manually - filter your entire candidate library before you synthesize a single compound.
       </p>
       <div class="hero-cta">
         <button class="btn btn-primary" onclick="showPage('screener')">Start screening &rarr;</button>
@@ -529,9 +529,9 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
       <div class="replaces-col">
         <div class="replaces-col-head">Traditional workflow</div>
         <ul class="replaces-list">
-          <li>AutoDock Vina: 2&ndash;4 hours of setup per compound</li>
+          <li>AutoDock Vina: 2-4 hours of setup per compound</li>
           <li>Synthesis required before you know if a molecule binds</li>
-          <li>ELISA / NF-&kappa;B reporter assays: 3&ndash;5 days + ~$200 per compound</li>
+          <li>ELISA / NF-&kappa;B reporter assays: 3-5 days + ~$200 per compound</li>
           <li>Manual pharmacophore analysis against crystal structures</li>
           <li>Separate expert and toolchain needed for each receptor family</li>
           <li>No consistent cross-receptor scoring or comparison</li>
@@ -543,9 +543,9 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
         <ul class="replaces-list">
           <li>Binding estimate in under 2 seconds for any compound</li>
           <li>Screen entire libraries before committing to synthesis</li>
-          <li>20 free queries per month &mdash; no credit card required</li>
+          <li>20 free queries per month - no credit card required</li>
           <li>Automated pharmacophore report with PDB key contact residues</li>
-          <li>14 receptors in a single interface &mdash; TLR, STING, RIG-I, MDA5</li>
+          <li>14 receptors in a single interface - TLR, STING, RIG-I, MDA5</li>
           <li>Consistent pIC50 and IC50 output across all targets</li>
         </ul>
       </div>
@@ -560,7 +560,7 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
       <div class="step">
         <div class="step-num">Step 01</div>
         <div class="step-title">Draw or paste your compound</div>
-        <div class="step-desc">Enter a SMILES string directly, use the built-in JSME structure editor, or search by compound name &mdash; PubChem lookup is built in and resolves common drug names and research compounds instantly.</div>
+        <div class="step-desc">Enter a SMILES string directly, use the built-in JSME structure editor, or search by compound name - PubChem lookup is built in and resolves common drug names and research compounds instantly.</div>
       </div>
       <div class="step-arrow">&rarr;</div>
       <div class="step">
@@ -572,7 +572,7 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
       <div class="step">
         <div class="step-num">Step 03</div>
         <div class="step-title">Get your binding report</div>
-        <div class="step-desc">Receive a binding score (0&ndash;100), estimated pIC50 and IC50 in nM, key pharmacophore contact flags from PDB crystal structures, drug-likeness analysis, and a full expert narrative. Export as JSON or CSV, or share via link.</div>
+        <div class="step-desc">Receive a binding score (0-100), estimated pIC50 and IC50 in nM, key pharmacophore contact flags from PDB crystal structures, drug-likeness analysis, and a full expert narrative. Export as JSON or CSV, or share via link.</div>
       </div>
     </div>
 
@@ -583,19 +583,19 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
     </div>
     <div class="receptor-grid fade-up">
       <div class="receptor-card">
-        <div class="receptor-card-name">TLR1/2 &middot; TLR2/6 &middot; TLR4 &mdash; ML model</div>
+        <div class="receptor-card-name">TLR1/2 &middot; TLR2/6 &middot; TLR4 - ML model</div>
         <div class="receptor-card-desc">The three most drug-targeted TLRs. Binding predictions use a trained XGBoost model (R&sup2;=0.71) fit on experimental pIC50 data from published lipopeptide and LPS analogue studies. Outputs include estimated IC50 in nM, pharmacophore contact scores for key residues (Asn294, Phe349, Glu271), and lipid anchor detection. The model takes 2D molecular descriptors: MW, LogP, acyl chain count, and fingerprint-derived features.</div>
       </div>
       <div class="receptor-card">
-        <div class="receptor-card-name">TLR3 &middot; TLR7 &middot; TLR8 &middot; TLR9 &mdash; nucleic acid sensors</div>
+        <div class="receptor-card-name">TLR3 &middot; TLR7 &middot; TLR8 &middot; TLR9 - nucleic acid sensors</div>
         <div class="receptor-card-desc">Endosomal TLRs that detect nucleic acid patterns from pathogens. TLR3 recognises double-stranded RNA (poly I:C analogues; PDB 3CIY); TLR7 and TLR8 sense single-stranded RNA and small-molecule agonists such as imiquimod and resiquimod (PDB 5GMH, 3W3J); TLR9 detects unmethylated CpG ODNs from bacteria and viruses (PDB 3WPB). Each analysis is grounded in the corresponding crystal structure.</div>
       </div>
       <div class="receptor-card">
-        <div class="receptor-card-name">STING &middot; cGAS &mdash; cytosolic DNA sensing</div>
-        <div class="receptor-card-desc">STING (Stimulator of Interferon Genes) and its upstream sensor cGAS detect foreign or misplaced cytosolic DNA &mdash; a hallmark of viral infection, cancer mutation load, or cellular stress. STING agonists (cyclic dinucleotides, DMXAA analogues; PDB 4LOH) are among the most active areas in cancer immunotherapy, with multiple compounds in Phase II/III trials. cGAS inhibitors are being explored in autoimmune disease.</div>
+        <div class="receptor-card-name">STING &middot; cGAS - cytosolic DNA sensing</div>
+        <div class="receptor-card-desc">STING (Stimulator of Interferon Genes) and its upstream sensor cGAS detect foreign or misplaced cytosolic DNA - a hallmark of viral infection, cancer mutation load, or cellular stress. STING agonists (cyclic dinucleotides, DMXAA analogues; PDB 4LOH) are among the most active areas in cancer immunotherapy, with multiple compounds in Phase II/III trials. cGAS inhibitors are being explored in autoimmune disease.</div>
       </div>
       <div class="receptor-card">
-        <div class="receptor-card-name">RIG-I &middot; MDA5 &mdash; cytosolic RNA sensing</div>
+        <div class="receptor-card-name">RIG-I &middot; MDA5 - cytosolic RNA sensing</div>
         <div class="receptor-card-desc">DExD/H-box RNA helicases that sense double-stranded RNA generated during viral replication. RIG-I preferentially recognises short 5&prime;-triphosphate dsRNA (PDB 4A36); MDA5 forms cooperative filaments on long dsRNA (PDB 4GL2). Both activate the MAVS signalling axis, triggering type-I interferon production. Active drug programmes target influenza, SARS-CoV-2, and RSV using synthetic RIG-I / MDA5 agonists.</div>
       </div>
     </div>
@@ -607,14 +607,14 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
     </div>
     <div class="tech-row fade-up">
       <div class="tech-card">
-        <div class="tech-card-label">ML model &mdash; TLR1/2, TLR2/6, TLR4</div>
+        <div class="tech-card-label">ML model - TLR1/2, TLR2/6, TLR4</div>
         <div class="tech-card-val">XGBoost &middot; R&sup2;=0.71</div>
         <div class="tech-card-desc">Trained on experimental pIC50 measurements from published lipopeptide binding studies. Features include molecular weight, cLogP, rotatable bond count, acyl chain count, hydrogen bond donors and acceptors, and 2048-bit Morgan fingerprint-derived descriptors. The model outputs a pIC50 value directly; IC50 is back-calculated as 10^(9&minus;pIC50)&nbsp;nM. Confidence is highest for lipopeptide scaffolds structurally similar to training data (Pam3CSK4, FSL-1, lipid&nbsp;A analogues).</div>
       </div>
       <div class="tech-card">
-        <div class="tech-card-label">LLM analysis &mdash; all other receptors</div>
+        <div class="tech-card-label">LLM analysis - all other receptors</div>
         <div class="tech-card-val">Claude Sonnet &middot; Expert context</div>
-        <div class="tech-card-desc">Each of the 14 receptors has a hand-curated pharmacophore context: key binding residues from X-ray crystallography (PDB), known agonist and antagonist scaffolds with their potency ranges, and selectivity-determining structural features. The LLM evaluates the input SMILES against this expert context and returns a structured binding score (0&ndash;100), pharmacophore match score, key contact flags, drug-likeness assessment, and a free-text expert narrative explaining the rationale.</div>
+        <div class="tech-card-desc">Each of the 14 receptors has a hand-curated pharmacophore context: key binding residues from X-ray crystallography (PDB), known agonist and antagonist scaffolds with their potency ranges, and selectivity-determining structural features. The LLM evaluates the input SMILES against this expert context and returns a structured binding score (0-100), pharmacophore match score, key contact flags, drug-likeness assessment, and a free-text expert narrative explaining the rationale.</div>
       </div>
     </div>
 
@@ -627,7 +627,7 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
       <div class="usecase-card">
         <div class="usecase-icon">&#128137;</div>
         <div class="usecase-title">Vaccine adjuvant design</div>
-        <div class="usecase-desc">Screen synthetic lipopeptide and TLR agonist libraries before committing to SPPS or total synthesis. Rapidly distinguish TLR1/2 vs TLR2/6 selectivity &mdash; the two heterodimers have distinct binding pocket geometries and acyl chain preferences that ImmunoBind resolves in a single screen.</div>
+        <div class="usecase-desc">Screen synthetic lipopeptide and TLR agonist libraries before committing to SPPS or total synthesis. Rapidly distinguish TLR1/2 vs TLR2/6 selectivity - the two heterodimers have distinct binding pocket geometries and acyl chain preferences that ImmunoBind resolves in a single screen.</div>
       </div>
       <div class="usecase-card">
         <div class="usecase-icon">&#129516;</div>
@@ -656,7 +656,7 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
         <input type="text" id="name-lookup" placeholder="e.g. Pam3CSK4, lipid A, aspirin..." style="flex:1" />
         <button class="btn" id="lookup-btn" onclick="lookupByName()">Lookup →</button>
       </div>
-      <div style="font-size:11px;color:var(--text3)">Searches PubChem — auto-fills SMILES below</div>
+      <div style="font-size:11px;color:var(--text3)">Searches PubChem - auto-fills SMILES below</div>
     </div>
 
     <div class="card">
@@ -741,7 +741,7 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
 <div id="page-batch" class="hidden">
   <div class="inner-page">
     <div class="inner-page-title">Batch screening</div>
-    <div class="inner-page-sub">Upload a CSV with a <span class="mono">smiles</span> column — up to 20 compounds per run.</div>
+    <div class="inner-page-sub">Upload a CSV with a <span class="mono">smiles</span> column - up to 20 compounds per run.</div>
 
     <div class="card">
       <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
@@ -811,7 +811,7 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
     <div class="row" style="justify-content:space-between;margin-bottom:1.75rem;align-items:flex-start">
       <div>
         <div class="inner-page-title">Analysis history</div>
-        <div class="inner-page-sub" style="margin-bottom:0">Saved locally in your browser — never leaves your device</div>
+        <div class="inner-page-sub" style="margin-bottom:0">Saved locally in your browser - never leaves your device</div>
       </div>
       <div class="row" style="margin-top:6px">
         <button class="btn btn-sm" onclick="exportHistoryCSV()">Export CSV</button>
@@ -844,6 +844,7 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
           <li>CSV + JSON export</li>
           <li>Analysis history</li>
         </ul>
+        <button class="btn btn-primary" style="width:100%;margin-top:1.5rem;justify-content:center" onclick="showPage('screener')">Start for free</button>
       </div>
       <div class="pricing-card featured">
         <div class="pricing-badge">Most popular</div>
@@ -857,6 +858,7 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
           <li>Priority support</li>
           <li>CSV + JSON export</li>
         </ul>
+        <a href="mailto:zeeshatron@gmail.com?subject=ImmunoBind Lab Plan" class="btn btn-primary" style="width:100%;margin-top:1.5rem;justify-content:center;text-decoration:none">Request access</a>
       </div>
       <div class="pricing-card">
         <div class="pricing-name">Biotech</div>
@@ -869,21 +871,18 @@ nav.scrolled { box-shadow: 0 1px 32px rgba(0,0,0,0.5); }
           <li>Custom pharmacophore models</li>
           <li>Dedicated support</li>
         </ul>
+        <a href="mailto:zeeshatron@gmail.com?subject=ImmunoBind Biotech Plan" class="btn" style="width:100%;margin-top:1.5rem;justify-content:center;text-decoration:none">Contact us</a>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-label">Have an API key?</div>
+      <div class="card-label">Already have an API key?</div>
       <div style="display:flex;gap:8px;margin-bottom:8px">
-        <input type="text" id="apikey-input" placeholder="sk-xxxxxxxxxxxx" style="flex:1;font-family:var(--mono)" />
+        <input type="text" id="apikey-input" placeholder="sk-ant-xxxxxxxxxxxx" style="flex:1;font-family:var(--mono)" />
         <button class="btn btn-primary" onclick="saveApiKey()">Save</button>
         <button class="btn" onclick="clearApiKey()">Clear</button>
       </div>
-      <div id="apikey-status" style="font-size:12px;color:var(--text3)">Key is stored in your browser only and sent with each request.</div>
-    </div>
-    <div class="card" style="text-align:center">
-      <div style="font-size:13px;color:var(--text2);margin-bottom:10px">Want Lab or Biotech access?</div>
-      <a href="mailto:zeeshatron@gmail.com?subject=ImmunoBind API Key Request" class="btn btn-primary" style="display:inline-flex">Email for a key →</a>
+      <div id="apikey-status" style="font-size:12px;color:var(--text3)">Stored in your browser only - never sent to our servers.</div>
     </div>
   </div>
 </div>
@@ -1065,7 +1064,7 @@ window.addEventListener('scroll', () => {
     return g;
   }
 
-  // Molecule 1: Lipopeptide (Pam3CSK4-like) — main, center
+  // Molecule 1: Lipopeptide (Pam3CSK4-like) - main, center
   const m1a = [
     {e:'C',p:[0,0,0]},{e:'C',p:[0.78,0.32,0.1]},{e:'C',p:[1.56,0,-0.1]},
     {e:'C',p:[2.34,0.32,0.1]},{e:'C',p:[3.1,0,-0.1]},
@@ -1081,7 +1080,7 @@ window.addEventListener('scroll', () => {
   grp1.position.set(0, 0.5, 0);
   scene.add(grp1);
 
-  // Molecule 2: Imidazoquinoline scaffold (TLR7/8 agonist) — upper right
+  // Molecule 2: Imidazoquinoline scaffold (TLR7/8 agonist) - upper right
   const m2a = [
     {e:'N',p:[0,0,0]},{e:'C',p:[0.65,0.72,0]},{e:'N',p:[1.42,0.28,0]},
     {e:'C',p:[1.42,-0.62,0]},{e:'C',p:[0.65,-1.02,0]},{e:'C',p:[0,-0.35,0]},
@@ -1094,7 +1093,7 @@ window.addEventListener('scroll', () => {
   grp2.position.set(3.2, 3.8, -1.5);
   scene.add(grp2);
 
-  // Molecule 3: Cyclic dinucleotide fragment (STING agonist) — lower left
+  // Molecule 3: Cyclic dinucleotide fragment (STING agonist) - lower left
   const m3a = [
     {e:'P',p:[0,0,0]},{e:'O',p:[0.85,0.82,0]},{e:'O',p:[-0.85,0.82,0]},
     {e:'O',p:[0,-1.02,0]},{e:'C',p:[1.65,0.52,0.32]},{e:'C',p:[2.25,-0.32,0.05]},
@@ -1170,16 +1169,16 @@ const TARGET_DESCS = {
   'TLR3':    'dsRNA mimetics (poly I:C analogues) binding TLR3 ectodomain (PDB: 3CIY)',
   'TLR4':    'LPS/Lipid A analogues binding TLR4-MD2 complex (PDB: 3FXI)',
   'TLR5':    'Flagellin-derived peptides binding TLR5 (PDB: 3J0A)',
-  'TLR6':    'Diacyl lipopeptides — TLR6 alone or in TLR2-TLR6 context',
+  'TLR6':    'Diacyl lipopeptides - TLR6 alone or in TLR2-TLR6 context',
   'TLR7':    'ssRNA / imidazoquinoline analogues (imiquimod, resiquimod) binding TLR7 (PDB: 5GMH)',
   'TLR8':    'ssRNA / small-molecule agonists binding TLR8 (PDB: 3W3J)',
   'TLR9':    'CpG oligonucleotide analogues binding TLR9 (PDB: 3WPB)',
-  'TLR10':   'TLR10 — ligand poorly characterised; diacyl/triacyl lipopeptides in TLR2-TLR10 context',
+  'TLR10':   'TLR10 - ligand poorly characterised; diacyl/triacyl lipopeptides in TLR2-TLR10 context',
   'STING':   'Cyclic dinucleotides (cGAMP, DMXAA analogues) binding STING CDN-binding domain (PDB: 4LOH)',
-  'cGAS':    'Cyclic-GMP-AMP synthase — substrates/inhibitors of the catalytic pocket (PDB: 4KM5)',
+  'cGAS':    'Cyclic-GMP-AMP synthase - substrates/inhibitors of the catalytic pocket (PDB: 4KM5)',
   'RIG-I':   '5′-triphosphate dsRNA mimetics / small-molecule agonists of RIG-I (PDB: 4A36)',
   'MDA5':    'Long dsRNA ligands / agonists of MDA5 filament assembly (PDB: 4GL2)',
-  'general': 'General innate immune PRR binding — no specific receptor assumed',
+  'general': 'General innate immune PRR binding - no specific receptor assumed',
 };
 const TARGET_HAS_ML = new Set(['TLR1/2', 'TLR2/6', 'TLR4']);
 
@@ -1218,7 +1217,7 @@ async function refreshUsage() {
     const badge = document.getElementById('usage-badge');
     if (d.kv_unavailable || d.limit === null) {
       badge.textContent = 'unlimited';
-      badge.title = 'Rate limiting not configured — KV store not connected';
+      badge.title = 'Rate limiting not configured - KV store not connected';
       badge.className = 'usage-badge'; return;
     }
     badge.textContent = `${d.used} / ${d.limit}`;
@@ -1319,7 +1318,7 @@ function renderSingle(r) {
   document.getElementById('single-loading').classList.add('hidden');
 
   document.getElementById('single-metrics').innerHTML = `
-    <div class="metric"><div class="metric-label">pIC50</div><div class="metric-val">${(r.pIC50||0).toFixed(1)}</div><div class="metric-sub">–log₁₀(IC50)</div></div>
+    <div class="metric"><div class="metric-label">pIC50</div><div class="metric-val">${(r.pIC50||0).toFixed(1)}</div><div class="metric-sub">-log₁₀(IC50)</div></div>
     <div class="metric"><div class="metric-label">IC50</div><div class="metric-val">${r.IC50_nM < 1 ? '<1' : r.IC50_nM > 1e6 ? '>1M' : r.IC50_nM < 1000 ? r.IC50_nM.toFixed(0) : (r.IC50_nM/1000).toFixed(1)+'k'}</div><div class="metric-sub">nM</div></div>
     <div class="metric"><div class="metric-label">MW</div><div class="metric-val">${r.mw_estimate}</div><div class="metric-sub">Da</div></div>
     <div class="metric"><div class="metric-label">LogP</div><div class="metric-val">${(r.logp_estimate||0).toFixed(1)}</div><div class="metric-sub">lipophilicity</div></div>
@@ -1339,7 +1338,7 @@ function renderSingle(r) {
       <span class="contact-badge ${r.phe349_contact?'on':''}">Phe349 contact</span>
       <span class="contact-badge ${r.has_lipid_anchor?'on':''}">Lipid anchor</span>
     </div>
-    <div style="margin-top:10px;font-size:11px;color:var(--text3)">${r.model_name==='LLM'?`Score from AI analysis${TARGET_HAS_ML.has(_target)?'':' <span class=\'llm-badge\'>LLM only — no ML model for this receptor yet</span>'}`:`Score from ${r.model_name||'ML'} model (R²=${r.model_r2||'—'}) · pIC50=${(r.pIC50||0).toFixed(2)}`}</div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3)">${r.model_name==='LLM'?`Score from AI analysis${TARGET_HAS_ML.has(_target)?'':' <span class=\'llm-badge\'>LLM only - no ML model for this receptor yet</span>'}`:`Score from ${r.model_name||'ML'} model (R²=${r.model_r2||'-'}) · pIC50=${(r.pIC50||0).toFixed(2)}`}</div>
   `;
 
   document.getElementById('single-analysis').innerHTML = `
@@ -1427,10 +1426,10 @@ function appendBatchRow(r) {
   tr.innerHTML = `
     <td title="${r.molecule_name||r.input_name}">${r.molecule_name||r.input_name}</td>
     <td style="font-family:var(--mono);font-size:11px;color:var(--text3)" title="${r.smiles}">${s}</td>
-    <td>${r.error?'—':(r.pIC50||0).toFixed(2)}</td>
-    <td>${r.error||r.IC50_nM==null?'—':r.IC50_nM<1?'<1':r.IC50_nM>1e6?'>1M':r.IC50_nM.toFixed(1)}</td>
-    <td>${r.error?'—':r.mw_estimate}</td>
-    <td>${r.error?'—':(r.logp_estimate||0).toFixed(1)}</td>
+    <td>${r.error?'-':(r.pIC50||0).toFixed(2)}</td>
+    <td>${r.error||r.IC50_nM==null?'-':r.IC50_nM<1?'<1':r.IC50_nM>1e6?'>1M':r.IC50_nM.toFixed(1)}</td>
+    <td>${r.error?'-':r.mw_estimate}</td>
+    <td>${r.error?'-':(r.logp_estimate||0).toFixed(1)}</td>
     <td><span class="verdict ${r.verdict}" style="font-size:11px">${r.verdict_text||r.verdict}</span></td>
   `;
   document.getElementById('batch-tbody').appendChild(tr);
@@ -1587,7 +1586,7 @@ function renderHistoryPage() {
   const h = getHistory();
   const el = document.getElementById('history-list');
   if (!h.length) {
-    el.innerHTML = '<div class="history-empty">No saved analyses. Run a screener analysis — results are auto-saved here.</div>';
+    el.innerHTML = '<div class="history-empty">No saved analyses. Run a screener analysis - results are auto-saved here.</div>';
     return;
   }
   el.innerHTML = h.map(e => `
