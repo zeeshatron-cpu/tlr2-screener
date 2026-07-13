@@ -42,14 +42,17 @@ DECOY_SOURCE_TARGETS = [
     "CHEMBL1827",  # Acetylcholinesterase
 ]
 
-# ChEMBL IDs for TLR family — used to exclude any compound with TLR activity
+# ChEMBL IDs for TLR2 — used to exclude any TLR2-active compound from decoys.
+# VERIFIED against UniProt O60603 by scripts/verify_target.py:
+#   CHEMBL4163     = Toll-like receptor 2 (SINGLE PROTEIN)  <- the real one
+#   CHEMBL3301399  = TLR2/TLR6 (PROTEIN COMPLEX)
+#   CHEMBL3885643  = Toll-like receptor 1/2 (PROTEIN COMPLEX)
+# NOTE: CHEMBL4523 was previously (wrongly) listed here as "TLR2"; it is
+# actually Serine/threonine-protein kinase pim-2. Do not re-add it.
 TLR_TARGETS = {
-    "CHEMBL4523",  # TLR2
-    "CHEMBL2716",  # TLR2 (alternate)
-    "CHEMBL3360",  # TLR4
-    "CHEMBL5469",  # TLR1
-    "CHEMBL3776",  # TLR6
-    "CHEMBL3227",  # TLR9
+    "CHEMBL4163",     # TLR2 (single protein)
+    "CHEMBL3301399",  # TLR2/TLR6 complex
+    "CHEMBL3885643",  # TLR1/2 complex
 }
 
 RANDOM_SEED = 42
