@@ -120,8 +120,12 @@ def scaffold_split(df, test_frac, seed):
 
 
 def main():
-    df = pd.read_csv("tlr2_clean.csv").reset_index(drop=True)
-    print(f"loaded {len(df)} compounds")
+    import os
+    csv_path = "tlr2_with_decoys.csv" if os.path.exists("tlr2_with_decoys.csv") else "tlr2_clean.csv"
+    print(f"Loading from {csv_path}")
+    df = pd.read_csv(csv_path).reset_index(drop=True)
+    n_act = int(df["active"].sum()) if "active" in df.columns else "?"
+    print(f"loaded {len(df)} compounds ({n_act} active, {len(df)-n_act} inactive)")
 
     X, y, keep = [], [], []
     for i, row in df.iterrows():
