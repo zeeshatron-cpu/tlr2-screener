@@ -1,5 +1,12 @@
 {
+  "functions": {
+    "api/predict_tlr2.py": {
+      "runtime": "vercel-python@3.0",
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
+    { "source": "/api/predict_tlr2", "destination": "/api/predict_tlr2.py" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
