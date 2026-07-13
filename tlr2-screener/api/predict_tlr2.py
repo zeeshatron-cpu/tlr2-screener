@@ -1,35 +1,43 @@
 """
 Vercel Python serverless function: TLR2 binary activity prediction.
 POST /api/predict_tlr2  {"smiles": "...", "name": "..."}
+GET  /api/predict_tlr2  -> health/model info
+
+Uses ONNX runtime (57MB) + rdkit (77MB) = ~160MB, well under Vercel's 250MB limit.
+Model: XGBoost binary classifier, CV ROC AUC 0.932, trained on 71 curated TLR2 compounds.
 """
 from http.server import BaseHTTPRequestHandler
-import json, os
+import json
 from pathlib import Path
 
-_model = None
+_sess = None
 _meta = None
 
+
 def _model_paths():
+    """Find model directory across local dev and Vercel Lambda layouts."""
     candidates = [
-        Path(__file__).parent.parent / "ml" / "model",  # local dev
-        Path(__file__).parent / "ml" / "model",          # flat bundle
-        Path("/var/task/ml/model"),                       # Vercel Lambda root
+        Path(__file__).parent.parent / "ml" / "model",
+        Path(__file__).parent / "ml" / "model",
+        Path("/var/task/ml/model"),
     ]
     for p in candidates:
-        if (p / "tlr2_clf.pkl").exists():
-            return p / "tlr2_clf.pkl", p / "clf_meta.json"
-    raise FileNotFoundError("Cannot locate model. Tried: " + str([str(c) for c in candidates]))
+        if (p / "tlr2_clf.onnx").exists():
+            return p / "tlr2_clf.onnx", p / "clf_meta.json"
+    raise FileNotFoundError(
+        "Cannot locate model. Tried: " + str([str(c) for c in candidates])
+    )
 
 
 def _load():
-    global _model, _meta
-    if _model is None:
-        import joblib
-        model_path, meta_path = _model_paths()
-        _model = joblib.load(model_path)
+    global _sess, _meta
+    if _sess is None:
+        import onnxruntime as rt
+        onnx_path, meta_path = _model_paths()
+        _sess = rt.InferenceSession(str(onnx_path))
         with open(meta_path) as f:
             _meta = json.load(f)
-    return _model, _meta
+    return _sess, _meta
 
 
 def _featurize(smiles, meta):
@@ -48,17 +56,22 @@ def _featurize(smiles, meta):
         for bond in m.GetBonds():
             a, b = bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()
             ba, bb = m.GetAtomWithIdx(a), m.GetAtomWithIdx(b)
-            if ba.GetSymbol() == 'C' and bb.GetSymbol() == 'C' and not ba.GetIsAromatic() and not bb.GetIsAromatic():
-                adj[a].append(b); adj[b].append(a)
+            if (ba.GetSymbol() == 'C' and bb.GetSymbol() == 'C'
+                    and not ba.GetIsAromatic() and not bb.GetIsAromatic()):
+                adj[a].append(b)
+                adj[b].append(a)
         best = 0
         for start in adj:
             visited, stack = set(), [(start, 0)]
             while stack:
                 node, d = stack.pop()
-                if node in visited: continue
-                visited.add(node); best = max(best, d)
+                if node in visited:
+                    continue
+                visited.add(node)
+                best = max(best, d)
                 for nb in adj[node]:
-                    if nb not in visited: stack.append((nb, d + 1))
+                    if nb not in visited:
+                        stack.append((nb, d + 1))
         return best
 
     phys = [
@@ -79,20 +92,21 @@ def _featurize(smiles, meta):
         radius=meta["fp_radius"], fpSize=meta["fp_bits"]
     )
     fp = gen.GetFingerprintAsNumPy(mol).astype("float32")
-    X = [Descriptors.MolWt(mol), Descriptors.MolLogP(mol),
-         rdMolDescriptors.CalcNumHBD(mol), rdMolDescriptors.CalcNumHBA(mol),
-         Descriptors.TPSA(mol)]
-    return np.hstack([np.array(phys, dtype="float32"), fp]).reshape(1, -1), {
+    X = np.hstack([np.array(phys, dtype="float32"), fp]).reshape(1, -1)
+    return X, {
         "mw": phys[0], "logp": phys[1], "hbd": phys[2], "hba": phys[3],
         "tpsa": phys[4], "acyl_chain_count": phys[10],
     }
 
 
 def _predict(smiles, name):
-    model, meta = _load()
+    sess, meta = _load()
     X, phys = _featurize(smiles.strip(), meta)
-    proba = float(model.predict_proba(X)[0][1])
-    pred = int(model.predict(X)[0])
+
+    input_name = sess.get_inputs()[0].name
+    outputs = sess.run(None, {input_name: X})
+    pred = int(outputs[0][0])
+    proba = float(outputs[1][0][1])
 
     score = round(proba * 100)
     if proba >= 0.7:
@@ -116,7 +130,7 @@ def _predict(smiles, name):
         "hba": int(phys["hba"]),
         "tpsa": round(phys["tpsa"], 1),
         "acyl_chains": int(phys["acyl_chain_count"]),
-        "model_name": meta["best_model"],
+        "model_name": meta["best_model"] + " (ONNX)",
         "model_roc_auc": meta["roc_auc"],
         "model_cv_roc_auc": meta["cv_roc_auc"],
         "n_train": meta["n_train"],
@@ -126,7 +140,7 @@ def _predict(smiles, name):
 
 class handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
-        pass  # suppress access logs in Vercel
+        pass
 
     def _send(self, status, body):
         payload = json.dumps(body).encode()
@@ -149,7 +163,7 @@ class handler(BaseHTTPRequestHandler):
             _, meta = _load()
             self._send(200, {
                 "status": "ok",
-                "model": meta["best_model"],
+                "model": meta["best_model"] + " (ONNX)",
                 "roc_auc": meta["roc_auc"],
                 "cv_roc_auc": meta["cv_roc_auc"],
                 "precision": meta["precision"],

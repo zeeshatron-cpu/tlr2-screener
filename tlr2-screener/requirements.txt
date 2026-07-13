@@ -1,5 +1,4 @@
 rdkit
-xgboost
-scikit-learn
+onnxruntime
 numpy
 joblib
