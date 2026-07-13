@@ -25,8 +25,11 @@ Output: tlr2_with_decoys.csv
 import requests
 import random
 import pandas as pd
-from rdkit import Chem
+from rdkit import Chem, RDLogger
 from rdkit.Chem import Descriptors
+
+# Silence RDKit's per-molecule warnings so they don't flood CI logs.
+RDLogger.DisableLog('rdApp.*')
 
 BASE = "https://www.ebi.ac.uk/chembl/api/data"
 
