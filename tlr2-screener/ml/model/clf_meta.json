@@ -1,75 +1,30 @@
 {
   "best_model": "XGBoost",
   "task": "binary_classification",
-  "threshold_label": "pIC50 >= 5.0 (IC50 < 10\u00b5M)",
-  "roc_auc": 0.8214,
-  "cv_roc_auc": 0.9322,
-  "precision": 1.0,
-  "recall": 0.625,
-  "f1": 0.7692,
-  "confusion_matrix": [
-    [
-      7,
-      0
-    ],
-    [
-      3,
-      5
-    ]
-  ],
-  "n_train": 56,
-  "n_test": 15,
-  "n_total": 71,
+  "data_source": "ChEMBL (UniProt O60603, human TLR2, IC50+EC50 only)",
+  "split_method": "Bemis-Murcko scaffold split (80/20)",
+  "threshold_label": "pchembl_value >= 5.0 (IC50/EC50 <= 10uM = active)",
+  "feature_order": "morgan_fp_first_then_descriptors",
   "fp_bits": 2048,
   "fp_radius": 2,
-  "phys_cols": [
-    "mw",
-    "logp",
-    "hbd",
-    "hba",
-    "tpsa",
-    "rot_bonds",
-    "aromatic_rings",
-    "heavy_atoms",
-    "rings",
-    "stereo_centers",
-    "acyl_chain_count",
-    "longest_chain"
-  ],
-  "results": {
-    "RandomForest": {
-      "roc_auc": 1.0,
-      "cv_roc_auc": 0.8833,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "confusion_matrix": [
-        [
-          7,
-          0
-        ],
-        [
-          0,
-          8
-        ]
-      ]
-    },
-    "XGBoost": {
-      "roc_auc": 0.8214,
-      "cv_roc_auc": 0.9322,
-      "precision": 1.0,
-      "recall": 0.625,
-      "f1": 0.7692,
-      "confusion_matrix": [
-        [
-          7,
-          0
-        ],
-        [
-          3,
-          5
-        ]
-      ]
-    }
-  }
+  "n_descriptors": 12,
+  "total_features": 2060,
+  "n_train": 437,
+  "n_test": 109,
+  "n_total": 546,
+  "roc_auc": 0.9621,
+  "cv_roc_auc": 0.9621,
+  "precision": 0.9,
+  "recall": 1.0,
+  "f1": 0.9474,
+  "confusion_matrix": [
+    [
+      49,
+      6
+    ],
+    [
+      0,
+      54
+    ]
+  ]
 }
