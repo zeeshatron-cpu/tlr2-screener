@@ -1,4 +1,10 @@
 {
+  "functions": {
+    "api/predict_tlr2.py": {
+      "includeFiles": "ml/model/**",
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]

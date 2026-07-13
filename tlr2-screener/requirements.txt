@@ -1,0 +1,4 @@
+rdkit
+onnxruntime
+numpy
+joblib
