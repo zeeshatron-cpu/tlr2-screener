@@ -1,0 +1,55 @@
+name: Train TLR2 Model
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 1 * *'  # monthly, 3am UTC
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install training dependencies
+        run: |
+          pip install \
+            chembl-webresource-client \
+            rdkit \
+            scikit-learn \
+            xgboost \
+            onnxmltools \
+            skl2onnx \
+            onnxruntime \
+            numpy \
+            pandas \
+            joblib
+
+      - name: Fetch ChEMBL data and train model
+        run: |
+          cd tlr2-screener
+          python scripts/fetch_and_train.py
+
+      - name: Commit updated model
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tlr2-screener/ml/model/tlr2_clf.onnx \
+                  tlr2-screener/ml/model/clf_meta.json \
+                  tlr2-screener/ml/data/chembl_tlr2_raw.csv \
+                  tlr2-screener/ml/data/chembl_tlr2_modelling.csv
+          git diff --cached --quiet && echo "No model changes" || \
+            git commit -m "chore: retrain TLR2 model from ChEMBL [skip ci]"
+
+      - name: Push to main
+        run: git push origin main
