@@ -44,6 +44,11 @@ jobs:
           cd tlr2-screener
           python scripts/2_build_dataset.py
 
+      - name: Step 2b - Generate property-matched decoys (negative class)
+        run: |
+          cd tlr2-screener
+          python scripts/2b_generate_decoys.py
+
       - name: Step 3 - Train with Bemis-Murcko scaffold split
         run: |
           cd tlr2-screener
@@ -58,6 +63,7 @@ jobs:
         run: |
           mkdir -p tlr2-screener/ml/data
           [ -f tlr2-screener/tlr2_clean.csv ] && mv tlr2-screener/tlr2_clean.csv tlr2-screener/ml/data/chembl_tlr2_clean.csv || true
+          [ -f tlr2-screener/tlr2_with_decoys.csv ] && mv tlr2-screener/tlr2_with_decoys.csv tlr2-screener/ml/data/chembl_tlr2_with_decoys.csv || true
 
       - name: Commit updated model
         run: |
@@ -65,9 +71,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add tlr2-screener/ml/model/tlr2_clf.onnx \
                   tlr2-screener/ml/model/clf_meta.json \
-                  tlr2-screener/ml/data/chembl_tlr2_clean.csv
+                  tlr2-screener/ml/data/chembl_tlr2_clean.csv \
+                  tlr2-screener/ml/data/chembl_tlr2_with_decoys.csv
           git diff --cached --quiet && echo "No model changes" || \
-            git commit -m "chore: retrain TLR2 model from ChEMBL (scaffold split) [skip ci]"
+            git commit -m "chore: retrain TLR2 model from ChEMBL (scaffold split + decoys) [skip ci]"
 
       - name: Push to main
         run: git push origin main
