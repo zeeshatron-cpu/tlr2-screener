@@ -24,7 +24,7 @@ jobs:
       - name: Install training dependencies
         run: |
           pip install \
-            chembl-webresource-client \
+            requests \
             rdkit \
             scikit-learn \
             xgboost \
@@ -32,13 +32,32 @@ jobs:
             skl2onnx \
             onnxruntime \
             numpy \
-            pandas \
-            joblib
+            pandas
 
-      - name: Fetch ChEMBL data and train model
+      - name: Step 1 - Inventory ChEMBL TLR2 target
         run: |
           cd tlr2-screener
-          python scripts/fetch_and_train.py
+          python scripts/1_explore_target.py
+
+      - name: Step 2 - Build dataset from ChEMBL (IC50+EC50, UniProt O60603)
+        run: |
+          cd tlr2-screener
+          python scripts/2_build_dataset.py
+
+      - name: Step 3 - Train with Bemis-Murcko scaffold split
+        run: |
+          cd tlr2-screener
+          python scripts/3_train_scaffold_split.py
+
+      - name: Step 4 - Export to ONNX for Vercel serving
+        run: |
+          cd tlr2-screener
+          python scripts/4_export_onnx.py
+
+      - name: Archive raw and clean data
+        run: |
+          mkdir -p tlr2-screener/ml/data
+          [ -f tlr2-screener/tlr2_clean.csv ] && mv tlr2-screener/tlr2_clean.csv tlr2-screener/ml/data/chembl_tlr2_clean.csv || true
 
       - name: Commit updated model
         run: |
@@ -46,10 +65,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add tlr2-screener/ml/model/tlr2_clf.onnx \
                   tlr2-screener/ml/model/clf_meta.json \
-                  tlr2-screener/ml/data/chembl_tlr2_raw.csv \
-                  tlr2-screener/ml/data/chembl_tlr2_modelling.csv
+                  tlr2-screener/ml/data/chembl_tlr2_clean.csv
           git diff --cached --quiet && echo "No model changes" || \
-            git commit -m "chore: retrain TLR2 model from ChEMBL [skip ci]"
+            git commit -m "chore: retrain TLR2 model from ChEMBL (scaffold split) [skip ci]"
 
       - name: Push to main
         run: git push origin main
