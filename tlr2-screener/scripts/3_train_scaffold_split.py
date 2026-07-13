@@ -20,9 +20,13 @@ import numpy as np
 import pandas as pd
 from collections import defaultdict
 
-from rdkit import Chem
+from rdkit import Chem, RDLogger
 from rdkit.Chem import AllChem, Descriptors, Lipinski
 from rdkit.Chem.Scaffolds import MurckoScaffold
+
+# Silence RDKit's per-molecule deprecation/parse warnings; they flood CI logs
+# and bury the metrics we actually need to read back.
+RDLogger.DisableLog('rdApp.*')
 
 from sklearn.metrics import roc_auc_score, precision_score, recall_score, f1_score, confusion_matrix
 import xgboost as xgb
