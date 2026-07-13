@@ -1,5 +1,5 @@
-rdkit==2026.3.3
-xgboost==3.2.0
-scikit-learn==1.9.0
-numpy==2.4.6
-joblib==1.5.3
+rdkit
+xgboost
+scikit-learn
+numpy
+joblib

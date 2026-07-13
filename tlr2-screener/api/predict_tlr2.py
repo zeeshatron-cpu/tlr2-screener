@@ -6,21 +6,28 @@ from http.server import BaseHTTPRequestHandler
 import json, os
 from pathlib import Path
 
-# Paths relative to project root (Vercel includes all project files)
-_BASE = Path(__file__).parent.parent / "ml" / "model"
-_MODEL_PATH = _BASE / "tlr2_clf.pkl"
-_META_PATH = _BASE / "clf_meta.json"
-
 _model = None
 _meta = None
+
+def _model_paths():
+    candidates = [
+        Path(__file__).parent.parent / "ml" / "model",  # local dev
+        Path(__file__).parent / "ml" / "model",          # flat bundle
+        Path("/var/task/ml/model"),                       # Vercel Lambda root
+    ]
+    for p in candidates:
+        if (p / "tlr2_clf.pkl").exists():
+            return p / "tlr2_clf.pkl", p / "clf_meta.json"
+    raise FileNotFoundError("Cannot locate model. Tried: " + str([str(c) for c in candidates]))
 
 
 def _load():
     global _model, _meta
     if _model is None:
         import joblib
-        _model = joblib.load(_MODEL_PATH)
-        with open(_META_PATH) as f:
+        model_path, meta_path = _model_paths()
+        _model = joblib.load(model_path)
+        with open(meta_path) as f:
             _meta = json.load(f)
     return _model, _meta
 
