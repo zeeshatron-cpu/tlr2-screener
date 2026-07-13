@@ -92,7 +92,8 @@ def _featurize(smiles, meta):
         radius=meta["fp_radius"], fpSize=meta["fp_bits"]
     )
     fp = gen.GetFingerprintAsNumPy(mol).astype("float32")
-    X = np.hstack([np.array(phys, dtype="float32"), fp]).reshape(1, -1)
+    # fp first, then descriptors — must match 3_train_scaffold_split.py exactly
+    X = np.hstack([fp, np.array(phys, dtype="float32")]).reshape(1, -1)
     return X, {
         "mw": phys[0], "logp": phys[1], "hbd": phys[2], "hba": phys[3],
         "tpsa": phys[4], "acyl_chain_count": phys[10],
