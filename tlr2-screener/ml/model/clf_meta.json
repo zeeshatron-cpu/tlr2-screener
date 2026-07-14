@@ -1,30 +1,31 @@
 {
   "best_model": "XGBoost",
   "task": "binary_classification",
-  "data_source": "ChEMBL (UniProt O60603, human TLR2, IC50+EC50 only)",
+  "data_source": "ChEMBL (CHEMBL4163, UniProt O60603, human TLR2, EC50 only)",
+  "model_task": "TLR2 agonist classifier (functional EC50; decoy-augmented negatives)",
   "split_method": "Bemis-Murcko scaffold split (80/20)",
-  "threshold_label": "pchembl_value >= 5.0 (IC50/EC50 <= 10uM = active)",
+  "threshold_label": "pchembl_value >= 5.0 (EC50 <= 10uM = active agonist)",
   "feature_order": "morgan_fp_first_then_descriptors",
   "fp_bits": 2048,
   "fp_radius": 2,
   "n_descriptors": 12,
   "total_features": 2060,
-  "n_train": 437,
-  "n_test": 109,
-  "n_total": 546,
-  "roc_auc": 0.9621,
-  "cv_roc_auc": 0.9621,
-  "precision": 0.9,
-  "recall": 1.0,
-  "f1": 0.9474,
+  "n_train": 324,
+  "n_test": 80,
+  "n_total": 404,
+  "roc_auc": 0.9487,
+  "cv_roc_auc": 0.9487,
+  "precision": 0.8718,
+  "recall": 0.8718,
+  "f1": 0.8718,
   "confusion_matrix": [
     [
-      49,
-      6
+      36,
+      5
     ],
     [
-      0,
-      54
+      5,
+      34
     ]
   ]
 }
