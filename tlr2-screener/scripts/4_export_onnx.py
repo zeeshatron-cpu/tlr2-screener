@@ -39,9 +39,10 @@ print(f"wrote {onnx_out} ({os.path.getsize(onnx_out)//1024}KB)")
 clf_meta = {
     "best_model": "XGBoost",
     "task": "binary_classification",
-    "data_source": "ChEMBL (UniProt O60603, human TLR2, IC50+EC50 only)",
+    "data_source": "ChEMBL (CHEMBL4163, UniProt O60603, human TLR2, EC50 only)",
+    "model_task": "TLR2 agonist classifier (functional EC50; decoy-augmented negatives)",
     "split_method": "Bemis-Murcko scaffold split (80/20)",
-    "threshold_label": "pchembl_value >= 5.0 (IC50/EC50 <= 10uM = active)",
+    "threshold_label": "pchembl_value >= 5.0 (EC50 <= 10uM = active agonist)",
     "feature_order": meta.get("feature_order", "morgan_fp_first_then_descriptors"),
     "fp_bits": meta["fp_bits"],
     "fp_radius": meta["fp_radius"],

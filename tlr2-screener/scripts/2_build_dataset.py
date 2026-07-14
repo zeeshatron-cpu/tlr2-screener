@@ -19,14 +19,20 @@ from rdkit import Chem
 
 BASE = "https://www.ebi.ac.uk/chembl/api/data"
 
-# ---- CONFIG: set these from step 1 output ----
-# UniProt O60603 = human TLR2. Step 1 resolves the CHEMBL id at runtime.
-# Override TARGET_IDS here if step 1 gives you multiple records and you want
-# to exclude a particular one (e.g., a complex or chimeric target).
-TARGET_IDS = []  # empty = auto-discover from UniProt O60603
+# ---- CONFIG ----
+# VERIFIED by scripts/verify_target.py: human TLR2 (UniProt O60603) is the
+# SINGLE PROTEIN target CHEMBL4163. (CHEMBL4523, used by the old pipeline, is
+# actually pim-2 kinase — the wrong-target bug this pins down.)
+# Pinned explicitly for reproducibility; leave [] to auto-discover from O60603.
+TARGET_IDS = ["CHEMBL4163"]
 UNIPROT = "O60603"
-STANDARD_TYPES = ["IC50", "EC50"]  # keep only comparable assay readouts
-ACTIVE_PCHEMBL_CUTOFF = 5.0        # pchembl >= 5.0  == IC50/EC50 <= 10 uM == active
+# EC50 only: this is a TLR2 AGONIST model. EC50 is the functional activation
+# readout (NF-kB reporter etc.) that matches the lipopeptide-agonist biology.
+# IC50 (antagonist/inhibition) is deliberately excluded so "active" means
+# "activates TLR2", not "modulates in either direction". Documented design
+# choice — state it plainly in any writeup.
+STANDARD_TYPES = ["EC50"]
+ACTIVE_PCHEMBL_CUTOFF = 5.0        # pchembl >= 5.0  == EC50 <= 10 uM == active agonist
 # ----------------------------------------------
 
 
