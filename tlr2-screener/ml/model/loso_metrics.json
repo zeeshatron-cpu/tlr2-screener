@@ -1,0 +1,37 @@
+{
+  "method": "leave-one-scaffold-out cross-validation",
+  "note": "Pooled out-of-fold AUC is the headline; GroupKFold spread shows estimate variance. Reporting only -- served model comes from step 3/4.",
+  "dataset": "tlr2_with_decoys.csv",
+  "n_compounds": 404,
+  "loso": {
+    "n_folds": 288,
+    "n_scored": 404,
+    "n_skipped_single_class_train": 0,
+    "pooled_roc_auc": 0.9669,
+    "pooled_precision": 0.9,
+    "pooled_recall": 0.9574,
+    "pooled_f1": 0.9278,
+    "pooled_confusion_matrix": [
+      [
+        196,
+        20
+      ],
+      [
+        8,
+        180
+      ]
+    ]
+  },
+  "grouped_kfold": {
+    "n_splits": 5,
+    "fold_aucs": [
+      0.9565,
+      0.9137,
+      0.9731,
+      0.985,
+      0.9923
+    ],
+    "mean_auc": 0.9641,
+    "std_auc": 0.028
+  }
+}
