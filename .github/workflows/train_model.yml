@@ -59,11 +59,17 @@ jobs:
           cd tlr2-screener
           python scripts/4_export_onnx.py
 
+      - name: Step 5 - Leave-one-scaffold-out cross-validation (reporting)
+        run: |
+          cd tlr2-screener
+          python scripts/5_loso_cv.py
+
       - name: Archive raw and clean data
         run: |
           mkdir -p tlr2-screener/ml/data
           [ -f tlr2-screener/tlr2_clean.csv ] && mv tlr2-screener/tlr2_clean.csv tlr2-screener/ml/data/chembl_tlr2_clean.csv || true
           [ -f tlr2-screener/tlr2_with_decoys.csv ] && mv tlr2-screener/tlr2_with_decoys.csv tlr2-screener/ml/data/chembl_tlr2_with_decoys.csv || true
+          [ -f tlr2-screener/loso_metrics.json ] && mv tlr2-screener/loso_metrics.json tlr2-screener/ml/model/loso_metrics.json || true
 
       - name: Commit updated model
         run: |
@@ -71,6 +77,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add tlr2-screener/ml/model/tlr2_clf.onnx \
                   tlr2-screener/ml/model/clf_meta.json \
+                  tlr2-screener/ml/model/loso_metrics.json \
                   tlr2-screener/ml/data/chembl_tlr2_clean.csv \
                   tlr2-screener/ml/data/chembl_tlr2_with_decoys.csv
           git diff --cached --quiet && echo "No model changes" || \
